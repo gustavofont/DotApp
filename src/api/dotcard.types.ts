@@ -395,7 +395,7 @@ export interface components {
             rarity: "COMMON" | "RARE" | "EPIC" | "LEGENDARY";
             collectionId: number;
             /** @description Full public URL, built from image_key + STORAGE_PUBLIC_URL — never the raw storage key. */
-            imageUrl: Record<string, never> | null;
+            imageUrl: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */

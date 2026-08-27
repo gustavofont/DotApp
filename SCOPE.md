@@ -28,7 +28,8 @@ a API retorna e envia comandos.
 | Login | Chama o AuthForge diretamente | Sem BFF — ver linha abaixo. |
 | BFF | Nenhum | Um proxy resolveria o problema do refresh token (cookie httpOnly de verdade), mas adiciona mais um serviço pra manter/deployar e muda a decisão de "SPA sem SSR". Reconsiderado explicitamente e descartado. |
 | Tempo real (trocas) | Polling via TanStack Query (`refetchInterval`) | O backend não tem WebSocket/push hoje; não vale adicionar infraestrutura nova só pro front antes de existir necessidade real. |
-| Design system | Paleta de `RARITY_STYLE` (`DotCardGenerator/card_composer.py`) como token-base | Reaproveita a identidade visual já validada nas cartas reais, em vez de inventar uma paleta nova pro resto do app. |
+| Design system | Paleta de `RARITY_STYLE` (originalmente de `DotCardGenerator/card_composer.py`) como token-base | Reaproveita a identidade visual já validada nas cartas reais, em vez de inventar uma paleta nova pro resto do app. |
+| Moldura da carta | 100% CSS, dentro de `CardArt.tsx` — nunca embutida na imagem | `imageUrl` é só a ilustração crua; moldura, glow, medalhão de raridade+tipo e faixa do nome são todos desenhados no componente. Decisão revertida de uma primeira tentativa onde a API servia o card já composto (frame + texto cozidos no PNG pelo `DotCardGenerator`) — isso duplicava moldura (uma vinda da imagem, outra do componente) e fazia o desgaste visual (§5) borrar o nome/moldura embutidos em vez de só a ilustração. |
 | Estilização | Tailwind CSS | Integra nativamente com shadcn/ui (que já é Radix + Tailwind por baixo). |
 | Componentes | Headless (Radix UI / shadcn) | Controle total da aparência em vez de brigar com o tema padrão de uma lib pré-estilizada. |
 | Organização de pastas | Por feature (`features/catalog/`, `features/trades/`, ...) | Sete domínios com lógica própria — evita acoplamento cruzado conforme o app cresce. Só o genuinamente compartilhado vive em `shared/`. |
@@ -109,7 +110,33 @@ refletindo `AWAITING_COUNTERPART` → `AWAITING_CONFIRMATION` →
 
 ---
 
-## 5. Desgaste visual por float
+## 5. `CardArt` — moldura e desgaste visual
+
+### Moldura (por que é só CSS)
+
+A API serve só a ilustração crua em `imageUrl` — nenhum frame, nome, ícone ou glow embutido
+no pixel. Isso foi uma correção de rota: a primeira versão pedia pro `DotCardGenerator` compor
+o card inteiro (moldura + texto cozidos no PNG) e o `CardArt` desenhava uma *segunda* moldura
+por cima, redundante — além de fazer o desgaste visual (abaixo) borrar o nome/moldura já
+embutidos na imagem, em vez de só a ilustração. Corrigido: toda a composição visual do card
+vive só em `CardArt.tsx`.
+
+Camadas do componente, de baixo pra cima:
+
+1. **Arte** (`object-cover`, sangra até a borda do card).
+2. **Desgaste** (se for um exemplar possuído — ver seção abaixo).
+3. **Borda holo-foil** — um wrapper com `padding` pequeno cujo `background` é um gradiente
+   multi-stop (cor da raridade + branco + `accent-soft`) fazendo às vezes de borda, sem
+   `border-image`. Por cima da arte, uma textura de brilho diagonal
+   (`repeating-linear-gradient` + `mix-blend-mode: overlay`) reforça a leitura de "superfície
+   metálica/holográfica".
+4. **Medalhão único**, canto superior esquerdo — combina raridade (fundo em gradiente radial
+   na cor `RARITY_ACCENT`) e tipo (ícone SVG por dentro, `shared/typeIcons.tsx`, mesmos 4
+   desenhos — árvore/chama/runa/caveira — que existiam antes em `card_composer.py`, agora só
+   portados pra JSX). Um selo só, não dois separados.
+5. **Faixa do nome** — recortada com `clip-path`, na base da arte, mesma cor da raridade.
+
+### Desgaste visual por float
 
 `generated_cards.float_value` já existe no backend como atributo cosmético puro (SCOPE.md §5.3
 do DotCard-API — "estilo float de skin de CS:GO", nunca afeta gameplay). O DotApp dá uso visual
