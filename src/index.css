@@ -1,0 +1,132 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+ * Single dark theme, deliberately — the whole card-art identity (see
+ * DotCardGenerator/card_composer.py RARITY_STYLE) only exists in dark form.
+ * A forced light variant would contradict the brand we're extending, not
+ * complement it. Validated in the screens mockup (DotApp/SCOPE.md §2).
+ *
+ * `dark:` stays gated behind a `.dark` class we never add — not behind
+ * `prefers-color-scheme` — so shadcn components' built-in `dark:` variants
+ * stay permanently inert instead of shifting with the host OS theme.
+ * The base (non-`dark:`) tokens below are already our one dark palette.
+ */
+@custom-variant dark (&:is(.dark *));
+@theme {
+  --color-ground: #0c0c0e;
+  --color-ground-2: #090909;
+  --color-surface: #17171a;
+  --color-surface-2: #202024;
+  --color-hairline: #333338;
+  --color-ink: #e8e6e0;
+  --color-ink-dim: #9a9a9e;
+  --color-ink-faint: #6e6e73;
+
+  --color-common: #aaaaaf;
+  --color-rare: #468ce6;
+  --color-epic: #a846e6;
+  --color-legendary: #e6af2d;
+  --color-legendary-soft: #f0c96b;
+
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia,
+    "Liberation Serif", serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* shadcn semantic tokens, mapped onto the palette above — the values
+     shadcn/ui components actually consume via bg-background, text-foreground
+     etc. Kept flat (no .dark override block) since there's only one theme. */
+  --background: var(--color-ground);
+  --foreground: var(--color-ink);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-legendary);
+  --primary-foreground: #241a06;
+  --secondary: var(--color-surface-2);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-surface-2);
+  --muted-foreground: var(--color-ink-dim);
+  --accent: var(--color-surface-2);
+  --accent-foreground: var(--color-ink);
+  --destructive: #d4483f;
+  --border: var(--color-hairline);
+  --input: var(--color-hairline);
+  --ring: var(--color-legendary);
+  --radius: 0.625rem;
+  --sidebar: var(--color-surface);
+  --sidebar-foreground: var(--color-ink);
+  --sidebar-primary: var(--color-legendary);
+  --sidebar-primary-foreground: #241a06;
+  --sidebar-accent: var(--color-surface-2);
+  --sidebar-accent-foreground: var(--color-ink);
+  --sidebar-border: var(--color-hairline);
+  --sidebar-ring: var(--color-legendary);
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+@theme inline {
+  --font-heading: var(--font-serif);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply font-sans;
+  }
+}
