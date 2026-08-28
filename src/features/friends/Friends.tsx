@@ -2,15 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dotCardClient } from "../../api/client";
 import { Button } from "../../components/ui/button";
-
-function errorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "message" in error) {
-    const message = (error as { message: unknown }).message;
-    if (typeof message === "string") return message;
-    if (Array.isArray(message)) return message.join(", ");
-  }
-  return fallback;
-}
+import { errorMessage } from "../../shared/apiError";
 
 export function Friends() {
   const queryClient = useQueryClient();

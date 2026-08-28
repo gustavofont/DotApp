@@ -105,9 +105,21 @@ próprio código.
 ### Trocas
 Formato "versus": carta do proponente à esquerda, carta do destinatário à direita — layout
 fixo de dois lados, sem espaço pra um terceiro item, reforçando visualmente a regra 1:1 do
-backend antes mesmo de qualquer validação. Atualiza por polling enquanto a tela está aberta,
-refletindo `AWAITING_COUNTERPART` → `AWAITING_CONFIRMATION` →
-`ACCEPTED`/`CANCELLED`/`EXPIRED`.
+backend antes mesmo de qualquer validação. `tradeMachine.ts` (XState) modela o ciclo de uma
+troca aberta: ao entrar em `open`, faz polling a cada 3s contra `GET /trades/:id` até o status
+sair de `AWAITING_COUNTERPART`/`AWAITING_CONFIRMATION`, é assim que a proposta de contrapartida
+do outro lado ou a confirmação final aparecem sem o usuário recarregar a página. Escolher a
+carta a oferecer (na criação) ou a contrapartida (no counterpart) usa `CardPicker`, um grid de
+`CardArt` em modo `compact` sobre `GET /me/cards` — mais simples que reaproveitar
+`ExemplarList`, porque aqui o jogador escolhe entre *todas* as próprias cartas, não os
+exemplares de uma carta-base já selecionada.
+
+**Mudança de contrato no backend:** `TradeResponseDto.offeredCardId`/`requestedCardId` eram só
+o id do exemplar — um participante conseguia resolver a própria carta via `GET /me/cards`, mas
+não tinha nenhuma rota pra resolver a do outro lado (`GET /users/:id/cards` é `ADMIN`-only), o
+que inviabilizava o layout "versus" de verdade. O DTO passou a embutir o `GeneratedCardResponseDto`
+completo de cada lado (`offeredCard`/`requestedCard`) — participante de uma troca tem
+legitimidade pra ver a carta do outro, é exatamente o dado que a troca já expõe.
 
 ---
 

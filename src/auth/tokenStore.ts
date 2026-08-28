@@ -14,6 +14,26 @@ export function setAccessToken(token: string | null): void {
   accessToken = token;
 }
 
+/**
+ * Decodes `sub` straight out of the in-memory access token instead of
+ * round-tripping through the backend — the JWT already carries it, and
+ * reading your own token's payload client-side needs no extra endpoint.
+ */
+export function getCurrentUserId(): string | null {
+  if (!accessToken) return null;
+  try {
+    const payload = accessToken.split(".")[1];
+    const decoded: unknown = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+    if (decoded && typeof decoded === "object" && "sub" in decoded) {
+      const sub = (decoded as { sub: unknown }).sub;
+      return typeof sub === "string" ? sub : null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 const REFRESH_TOKEN_KEY = "dotapp.refreshToken";
 
 export function getRefreshToken(): string | null {

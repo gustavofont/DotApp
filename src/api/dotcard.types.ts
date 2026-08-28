@@ -506,8 +506,10 @@ export interface components {
             id: string;
             fromUser: string;
             toUser: string;
-            offeredCardId: string;
-            requestedCardId: Record<string, never> | null;
+            /** @description The proposer's card, offered in exchange. */
+            offeredCard: components["schemas"]["GeneratedCardResponseDto"];
+            /** @description The recipient's card, chosen at the counterpart step. */
+            requestedCard: components["schemas"]["GeneratedCardResponseDto"] | null;
             /** @enum {string} */
             status: "AWAITING_COUNTERPART" | "AWAITING_CONFIRMATION" | "ACCEPTED" | "CANCELLED" | "EXPIRED";
             cancelledBy: Record<string, never> | null;
