@@ -11,11 +11,11 @@ colors:
   hairline: "#333338"
   parchment-white: "#e8e6e0"
   parchment-dim: "#9a9a9e"
-  parchment-faint: "#6e6e73"
+  parchment-faint: "#87878d"
   common-steel: "#aaaaaf"
   rare-sapphire: "#468ce6"
   epic-amethyst: "#a846e6"
-  destructive-ember: "#d4483f"
+  destructive-ember: "#d54c43"
 typography:
   display:
     fontFamily: "'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, 'Liberation Serif', serif"
@@ -112,8 +112,8 @@ The palette is almost monochrome by design — void-black and parchment-white ca
 - **Hairline** (`#333338`): all borders and dividers.
 - **Parchment White** (`#e8e6e0`): primary text — a warm off-white, not a clinical pure white, matching the fantasy-parchment tone of the display serif.
 - **Parchment Dim** (`#9a9a9e`): secondary text, labels, de-emphasized values.
-- **Parchment Faint** (`#6e6e73`): tertiary text, placeholders, the least important label on a screen.
-- **Destructive Ember** (`#d4483f`): errors and destructive actions only.
+- **Parchment Faint** (`#87878d`): tertiary text, placeholders, the least important label on a screen.
+- **Destructive Ember** (`#d54c43`): errors and destructive actions only.
 
 ### Named Rules
 **The Reserved Gold Rule.** Molten Gold appears on the primary action and on LEGENDARY rarity — nowhere else. A second unrelated gold element on the same screen dilutes both.

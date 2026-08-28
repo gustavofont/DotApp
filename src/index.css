@@ -22,7 +22,10 @@
   --color-hairline: #333338;
   --color-ink: #e8e6e0;
   --color-ink-dim: #9a9a9e;
-  --color-ink-faint: #6e6e73;
+  /* #87878d, not the original #6e6e73 — that failed WCAG AA (as low as
+     3.20:1 on surface-2) for small text; this clears 4.5:1 everywhere it's
+     used (impeccable audit P1). */
+  --color-ink-faint: #87878d;
 
   --color-common: #aaaaaf;
   --color-rare: #468ce6;
@@ -56,7 +59,9 @@
   --muted-foreground: var(--color-ink-dim);
   --accent: var(--color-surface-2);
   --accent-foreground: var(--color-ink);
-  --destructive: #d4483f;
+  /* #d54c43, not #d4483f — the original sat at 4.47:1 on ground, just
+     under WCAG AA's 4.5:1 (impeccable audit P3). */
+  --destructive: #d54c43;
   --border: var(--color-hairline);
   --input: var(--color-hairline);
   --ring: var(--color-legendary);

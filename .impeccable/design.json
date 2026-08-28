@@ -83,7 +83,7 @@
       "refersTo": "input-field",
       "description": "Slate-surface field with a gold focus border, no glow.",
       "html": "<input class=\"ds-input\" placeholder=\"K7X4M2QP\" />",
-      "css": ".ds-input { background: #202024; color: #e8e6e0; border: 1px solid #333338; border-radius: 10px; padding: 8px 12px; font-size: 14px; width: 100%; } .ds-input:focus-visible { outline: none; border-color: #e6af2d; } .ds-input::placeholder { color: #6e6e73; }"
+      "css": ".ds-input { background: #202024; color: #e8e6e0; border: 1px solid #333338; border-radius: 10px; padding: 8px 12px; font-size: 14px; width: 100%; } .ds-input:focus-visible { outline: none; border-color: #e6af2d; } .ds-input::placeholder { color: #87878d; }"
     },
     {
       "name": "Surface Card",
