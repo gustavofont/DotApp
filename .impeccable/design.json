@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-28T15:00:00Z",
+  "generatedAt": "2026-08-28T18:00:00Z",
   "title": "Design System: DotCard",
   "extensions": {
     "colorMeta": {
@@ -42,16 +42,17 @@
       }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display Serif", "purpose": "Page titles, card names, the DotCard wordmark — anything that should feel collectible-grade." },
+      "display": { "displayName": "Display Serif", "purpose": "Page titles, a slab's card name, the DotCard wordmark — anything that should feel collectible-grade." },
       "body": { "displayName": "Body Sans", "purpose": "Default UI copy, list rows, form values." },
-      "label": { "displayName": "Label Sans", "purpose": "Uppercase section headers and field labels, always Parchment Dim, never full-strength." }
+      "label": { "displayName": "Label Sans", "purpose": "Uppercase section headers and field labels, always Parchment Dim, never full-strength." },
+      "cert": { "displayName": "Cert Mono", "purpose": "A slab's serial number, numeric grade, and rarity·type tag — the certificate register, deliberately colder than the serif beside it." }
     },
     "shadows": [
-      { "name": "rarity-glow-common", "value": "none", "purpose": "COMMON cards sit flush with no shadow at all." },
-      { "name": "rarity-glow-rare", "value": "0 0 10.8px 0 color-mix(in srgb, #468ce6 45%, transparent)", "purpose": "RARE card glow." },
-      { "name": "rarity-glow-epic", "value": "0 0 19.2px 0 color-mix(in srgb, #a846e6 45%, transparent)", "purpose": "EPIC card glow." },
-      { "name": "rarity-glow-legendary", "value": "0 0 28.8px 0 color-mix(in srgb, #e6af2d 45%, transparent)", "purpose": "LEGENDARY card glow — the strongest in the system." },
-      { "name": "pack-glow", "value": "0 0 44px -6px color-mix(in srgb, #e6af2d 45%, transparent)", "purpose": "The booster pack's own glow on the pull-reveal selection screen." }
+      { "name": "rarity-glow-common", "value": "none", "purpose": "COMMON slabs sit flush with no glow at all." },
+      { "name": "rarity-glow-rare", "value": "0 0 10.8px 0 color-mix(in srgb, #468ce6 45%, transparent)", "purpose": "RARE slab glow." },
+      { "name": "rarity-glow-epic", "value": "0 0 19.2px 0 color-mix(in srgb, #a846e6 45%, transparent)", "purpose": "EPIC slab glow." },
+      { "name": "rarity-glow-legendary", "value": "0 0 28.8px 0 color-mix(in srgb, #e6af2d 45%, transparent)", "purpose": "LEGENDARY slab glow — the strongest in the system." },
+      { "name": "pack-glow", "value": "0 0 44px -6px color-mix(in srgb, #e6af2d 45%, transparent)", "purpose": "The sealed booster pack's own glow on the pull-reveal selection screen — a different object from a graded slab, keeps its own gift-wrap glow." }
     ],
     "motion": [
       { "name": "pack-shake", "value": "1.1s ease-in-out infinite, rotate ±5deg + scale 1.00-1.03", "purpose": "Pack-opening state — the pack visibly shakes while the real API call resolves underneath, minimum 1.1s so it always has room to play." },
@@ -89,45 +90,49 @@
       "name": "Surface Card",
       "kind": "card",
       "refersTo": "card-surface",
-      "description": "The charcoal panel used for the login form, Home's balance card, and dialogs.",
+      "description": "The charcoal panel used for the login form, Home's balance card, and dialogs — a flat panel, not a slab.",
       "html": "<div class=\"ds-card\">Card content</div>",
       "css": ".ds-card { background: #17171a; color: #e8e6e0; border: 1px solid #333338; border-radius: 18px; padding: 20px; }"
     },
     {
-      "name": "CardArt — Holo-Foil Frame",
+      "name": "CardArt — Graded Slab",
       "kind": "custom",
-      "refersTo": "cardart",
-      "description": "The signature component: a rarity-colored holo-foil gradient border (padding trick, not border-image), diagonal sheen overlay, and rarity glow that escalates from none (COMMON) to strong (LEGENDARY).",
-      "html": "<div class=\"ds-cardart\"><div class=\"ds-cardart-inner\"><div class=\"ds-cardart-sheen\"></div></div></div>",
-      "css": ".ds-cardart { aspect-ratio: 3 / 4.2; border-radius: 18px; padding: 3px; background: linear-gradient(135deg, #e6af2d, #fff 45%, #e6af2d 60%, #f0c96b 80%, #e6af2d); box-shadow: 0 0 28.8px 0 color-mix(in srgb, #e6af2d 45%, transparent); } .ds-cardart-inner { position: relative; height: 100%; width: 100%; overflow: hidden; border-radius: 13px; background: #202024; } .ds-cardart-sheen { position: absolute; inset: 0; background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.14) 0 5px, transparent 5px 24px); mix-blend-mode: overlay; pointer-events: none; }"
+      "refersTo": "card-slab",
+      "description": "The signature component: a colorless glassy case (padding-trick border, not border-image) topped by a dense label strip — a rarity-colored holo bar, a mono serial + grade row, the card name, and a mono rarity·type tag. Rarity color is concentrated in the strip and the GR text, not the case border. Locked cards render as an empty, dashed, label-less case.",
+      "html": "<div class=\"ds-slab\"><div class=\"ds-slab-inner\"><div class=\"ds-slab-label\"><div class=\"ds-slab-holo\"></div><div class=\"ds-slab-row\"><span class=\"ds-slab-serial\">NO. 000042</span><span class=\"ds-slab-grade\">GR 8.3</span></div><p class=\"ds-slab-name\">Ancient Golden Dragon</p><div class=\"ds-slab-tag\">LEGENDARY · CREATURE</div></div><div class=\"ds-slab-art\"></div></div></div>",
+      "css": ".ds-slab { aspect-ratio: 3 / 4.2; border-radius: 10px; padding: 3px; background: linear-gradient(135deg, rgba(255,255,255,.24), rgba(255,255,255,.02) 45%, rgba(255,255,255,.14) 75%, rgba(255,255,255,.24)); box-shadow: 0 0 28.8px 0 color-mix(in srgb, #e6af2d 45%, transparent); } .ds-slab-inner { display: flex; flex-direction: column; height: 100%; width: 100%; overflow: hidden; border-radius: 7px; background: #202024; } .ds-slab-holo { height: 4px; background: linear-gradient(90deg, #e6af2d, #f0c96b, #e6af2d); } .ds-slab-row { display: flex; justify-content: space-between; padding: 4px 6px 0; font-family: ui-monospace, monospace; font-size: 8px; color: #87878d; } .ds-slab-grade { font-weight: 700; color: #e6af2d; } .ds-slab-name { margin: 0; padding: 0 6px; font-family: Georgia, serif; font-size: 11px; font-weight: 600; color: #e8e6e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-slab-tag { padding: 0 6px 4px; font-family: ui-monospace, monospace; font-size: 7px; letter-spacing: .05em; text-transform: uppercase; color: #87878d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-slab-art { flex: 1; background: #202024; }"
     }
   ],
   "narrative": {
-    "northStar": "The Sealed Pack",
-    "overview": "Every screen behaves like a booster pack, not a mobile-game dashboard. The ground is void-black; nothing shines unless it's earned. Gold is reserved for the primary action and for LEGENDARY rarity — it never decorates idle chrome. Where a typical collectible-game UI reaches for confetti, badges, and celebratory pop-ups, DotCard stays sober and premium: the only 'gamified' flourish in the whole app is the pack-opening shake, and even that borrows its glow language from the same rarity system every card already uses. This is deliberate anti-reference — DotCard rejects mobile-freemium visual habits (bright celebratory bursts, layered drop shadows, saturated gradients everywhere) in favor of restraint that makes the rare moments — a LEGENDARY pull, a foil card in the catalog — actually read as rare.",
+    "northStar": "The Grading Slab",
+    "overview": "Owning a card is it being sealed and certified — the act of possession is the precious object, not just the art underneath. Every CardArt is a PSA/BGS-style graded slab: a glassy, colorless acrylic case (not a rarity-colored border), topped by a dense label strip carrying a thin holographic rarity band, a mono certificate serial number (the real database id of that exact exemplar), the card's name, and a numeric grade derived from its float_value. A locked (unowned) card is an empty, label-less case: a dashed outline and a lock icon, deliberately inert. This replaced an earlier 'holo-foil booster pack' treatment (full-border rarity gradient, a circular medallion, a clip-path name banner) — same void-black/molten-gold palette throughout, a confirmed brand commitment this redesign did not touch; only the material language wrapping the palette changed, from gift-wrapped to certified.",
     "keyCharacteristics": [
       "Near-black ground with a single reserved gold accent, not a dark theme with several competing accents.",
-      "Rarity is the only thing allowed to escalate glow/drama — COMMON is flat, LEGENDARY glows.",
-      "Serif display type for headings and card names; sans for everything functional.",
+      "Rarity now lives in a concentrated holo strip and the label's GR text color, not a full-card border — the case itself stays neutral/glassy.",
+      "Every owned exemplar carries a visible mono serial number and numeric grade — no two copies of the same card are visually interchangeable.",
+      "Serif display type for headings and card names; sans for UI chrome; mono for certificate data.",
       "No light mode. The identity only exists in dark form."
     ],
     "rules": [
       { "name": "The Reserved Gold Rule", "body": "Molten Gold appears on the primary action and on LEGENDARY rarity — nowhere else. A second unrelated gold element on the same screen dilutes both.", "section": "colors" },
       { "name": "The Earned Glow Rule", "body": "Box-shadow glow exists only as a function of rarity (0 / 9 / 16 / 24px for COMMON/RARE/EPIC/LEGENDARY). No UI element outside the rarity system gets a decorative glow.", "section": "colors" },
       { "name": "The Serif-Means-Precious Rule", "body": "If the serif appears somewhere, that content is meant to feel collectible-grade. Don't reach for it on routine UI chrome (button labels, form inputs) — that dilutes the signal.", "section": "typography" },
+      { "name": "The Cert-Is-Cold Rule", "body": "Mono type never carries warmth or personality — it's the register for facts (a serial, a grade), never for anything the serif or sans could say instead.", "section": "typography" },
       { "name": "The Flat-Unless-Rare Rule", "body": "Nothing gets a shadow by default. A shadow is always the rarity system speaking, never a generic 'card' or 'panel' affordance.", "section": "elevation" }
     ],
     "dos": [
-      "Do reserve Molten Gold for the primary action and LEGENDARY rarity — never a decorative accent elsewhere on the same screen.",
+      "Do reserve Molten Gold for the primary action and LEGENDARY rarity — never a decorative accent elsewhere on the same screen, including a GR value or a count badge on a non-legendary card.",
       "Do let rarity be the only source of glow/shadow in the system (0/9/16/24px COMMON→LEGENDARY).",
-      "Do use the serif display face only for content that should feel collectible-grade (titles, card names) — not for buttons or form labels.",
-      "Do treat a primary action tied to a physical-collectible metaphor (opening a pack) as the object itself, not a separate button floating below it."
+      "Do use the serif display face only for content that should feel collectible-grade (titles, a slab's card name) — not for buttons or form labels.",
+      "Do keep a slab's label height constant regardless of art/data availability — render the name unconditionally, gate only what genuinely has nothing to show.",
+      "Do namespace any per-exemplar generated SVG id by that exemplar's own identity, not just a locally-shifted seed, whenever more than one card can render on the same page."
     ],
     "donts": [
       "Don't add drop shadows for generic UI hierarchy (dropdown menus, sticky headers) — depth comes from the surface/ground contrast (Charcoal vs. Slate vs. Void), not shadows.",
       "Don't introduce a second accent color alongside gold. Secondary/tertiary color only exists as the rarity ladder.",
       "Don't reach for celebratory mobile-freemium patterns — confetti, toast pop-ups, badge/streak counters — even for genuinely good news (a LEGENDARY pull, a completed trade). The existing pack-shake + glow language is the ceiling for celebration.",
-      "Don't ship a light theme or a prefers-color-scheme variant. The identity is dark-only; dark: variants stay permanently inert behind a .dark class the app never applies."
+      "Don't ship a light theme or a prefers-color-scheme variant. The identity is dark-only; dark: variants stay permanently inert behind a .dark class the app never applies.",
+      "Don't let a slab's own label and a nearby list (the exemplar-list modal, a duplicate-count badge) disagree on how the same rarity is colored — one RARITY_ACCENT map, never a locally hardcoded gold."
     ]
   }
 }

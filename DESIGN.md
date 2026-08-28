@@ -1,6 +1,6 @@
 ---
 name: DotCard
-description: A collectible-only fantasy card game — the UI is treated as booster-pack packaging, not a mobile-game shell.
+description: A collectible-only fantasy card game — every owned card is treated as a sealed, certified slab, not gift-wrapped foil packaging.
 colors:
   molten-gold: "#e6af2d"
   legendary-shine: "#f0c96b"
@@ -28,12 +28,17 @@ typography:
     fontSize: "0.75rem"
     fontWeight: 600
     letterSpacing: "0.05em"
+  cert:
+    fontFamily: "ui-monospace, 'SF Mono', 'Cascadia Code', 'Roboto Mono', Menlo, Consolas, 'Liberation Mono', monospace"
+    fontSize: "7px-8px"
+    letterSpacing: "0.05em"
 rounded:
   sm: "6px"
   md: "8px"
   lg: "10px"
   xl: "14px"
   2xl: "18px"
+  slab-inner: "7px"
 spacing:
   sm: "8px"
   md: "16px"
@@ -63,31 +68,39 @@ components:
     textColor: "{colors.parchment-white}"
     rounded: "{rounded.2xl}"
     padding: "20px"
+  card-slab:
+    backgroundColor: "{colors.slate-surface}"
+    textColor: "{colors.parchment-white}"
+    rounded: "{rounded.lg}"
 ---
 
 # Design System: DotCard
 
 ## Overview
 
-**Creative North Star: "The Sealed Pack"**
+**Creative North Star: "The Grading Slab"**
 
-Every screen behaves like a booster pack, not a mobile-game dashboard. The
-ground is void-black; nothing shines unless it's earned. Gold is reserved
-for the primary action and for LEGENDARY rarity — it never decorates
-idle chrome. Where a typical collectible-game UI reaches for confetti,
-badges, and celebratory pop-ups, DotCard stays sober and premium: the only
-"gamified" flourish in the whole app is the pack-opening shake, and even
-that borrows its glow language from the same rarity system every card
-already uses. This is deliberate anti-reference — DotCard rejects
-mobile-freemium visual habits (bright celebratory bursts, layered drop
-shadows, saturated gradients everywhere) in favor of restraint that makes
-the rare moments — a LEGENDARY pull, a foil card in the catalog — actually
-read as rare.
+Owning a card is it being sealed and certified — the act of possession is
+the precious object, not just the art underneath. Every `CardArt` is a
+PSA/BGS-style graded slab: a glassy, colorless acrylic case (not a
+rarity-colored border), topped by a dense label strip carrying a thin
+holographic rarity band, a mono certificate serial number (the real
+database id of that exact exemplar), the card's name, and a numeric grade
+derived from its `float_value` — the same "lower float = better condition"
+convention the app already used to pick a card's "best" copy, now made
+visible as a number instead of staying implicit. A locked (unowned) card
+is an empty, label-less case: a dashed outline and a lock icon, deliberately
+inert. This replaced an earlier "holo-foil booster pack" treatment
+(full-border rarity gradient, a circular medallion, a clip-path name
+banner) — same void-black/molten-gold palette throughout, a confirmed
+brand commitment that this redesign did not touch; only the material
+language wrapping the palette changed, from *gift-wrapped* to *certified*.
 
 **Key Characteristics:**
 - Near-black ground with a single reserved gold accent, not a dark theme with several competing accents.
-- Rarity is the only thing allowed to escalate glow/drama — COMMON is flat, LEGENDARY glows.
-- Serif display type for headings and card names; sans for everything functional.
+- Rarity now lives in a concentrated holo strip and the label's GR text color, not a full-card border — the case itself stays neutral/glassy.
+- Every owned exemplar carries a visible mono serial number and numeric grade — no two copies of the same card are visually interchangeable.
+- Serif display type for headings and card names; sans for UI chrome; mono for certificate data (serials, grades, rarity/type tags).
 - No light mode. The identity only exists in dark form.
 
 ## Colors
@@ -95,8 +108,8 @@ read as rare.
 The palette is almost monochrome by design — void-black and parchment-white carry the whole UI — with color entering only through the four-tier rarity system and the single gold accent.
 
 ### Primary
-- **Molten Gold** (`#e6af2d`): the one reserved accent. Primary buttons, active nav state, focus rings, and LEGENDARY rarity. Used on a small fraction of any screen — its rarity in the UI mirrors the rarity it represents.
-- **Legendary Shine** (`#f0c96b`): the lighter end of the gold gradient — the top-left highlight of the holo-foil card border, and the bright stop in LEGENDARY's glow.
+- **Molten Gold** (`#e6af2d`): the one reserved accent. Primary buttons, active nav state, focus rings, and LEGENDARY rarity's holo strip/glow/GR text. Used on a small fraction of any screen — its rarity in the UI mirrors the rarity it represents.
+- **Legendary Shine** (`#f0c96b`): the lighter stop in LEGENDARY's holo-strip gradient and its glow.
 
 ### Secondary — the rarity ladder
 - **Common Steel** (`#aaaaaf`): COMMON rarity. No glow (0px) — the baseline everything else escalates from.
@@ -104,15 +117,17 @@ The palette is almost monochrome by design — void-black and parchment-white ca
 - **Epic Amethyst** (`#a846e6`): EPIC rarity. Stronger glow (16px).
 - *(LEGENDARY reuses Molten Gold/Legendary Shine above, at the strongest glow — 24px — rather than introducing a fifth color.)*
 
+Every rarity-colored element — the holo strip, the glow, a card's own GR text, the exemplar-list's GR text, the duplicate-count `×N` badge — reads its color from the same `RARITY_ACCENT` map (`src/shared/rarity.ts`), the single source of truth. Gold appearing on a COMMON/RARE/EPIC element anywhere is a bug, not a variant.
+
 ### Neutral
 - **Void Black** (`#0c0c0e`): page background (`body`, `--color-ground`).
 - **Void Black Deep** (`#090909`): the darkest ground variant, used sparingly beneath the primary ground.
-- **Charcoal Surface** (`#17171a`): raised surfaces — cards, panels, the login form.
-- **Slate Surface** (`#202024`): secondary surfaces — input fields, filter chips, badges.
-- **Hairline** (`#333338`): all borders and dividers.
+- **Charcoal Surface** (`#17171a`): raised panels — login form, Home's balance card, dialogs.
+- **Slate Surface** (`#202024`): a slab's own case interior and label background, plus input fields and secondary surfaces generally.
+- **Hairline** (`#333338`): all borders and dividers, including a locked slab's dashed outline.
 - **Parchment White** (`#e8e6e0`): primary text — a warm off-white, not a clinical pure white, matching the fantasy-parchment tone of the display serif.
 - **Parchment Dim** (`#9a9a9e`): secondary text, labels, de-emphasized values.
-- **Parchment Faint** (`#87878d`): tertiary text, placeholders, the least important label on a screen.
+- **Parchment Faint** (`#87878d`): tertiary text (a slab's serial number, placeholders) — clears WCAG AA (≥4.5:1) against ground, surface, and surface-2 alike.
 - **Destructive Ember** (`#d54c43`): errors and destructive actions only.
 
 ### Named Rules
@@ -124,78 +139,91 @@ The palette is almost monochrome by design — void-black and parchment-white ca
 
 **Display Font:** Iowan Old Style (with Palatino Linotype, Palatino, Book Antiqua, Georgia, Liberation Serif, serif fallbacks)
 **Body Font:** -apple-system / Segoe UI / Roboto / Helvetica Neue / Arial, sans-serif
+**Cert Font:** ui-monospace / SF Mono / Cascadia Code / Roboto Mono / Menlo / Consolas, monospace — new in this redesign
 
-**Character:** The serif carries every moment that should feel like a physical collectible — page titles, card names, the DotCard wordmark on the pack. The sans face handles everything functional — buttons, labels, form fields, body copy — so the serif's rarity stays intact.
+**Character:** The serif carries every moment that should feel like a physical collectible — page titles, a slab's card name. The sans face handles UI chrome — buttons, section labels, form fields, body copy. The mono face is new: it's the certificate/ledger register — serial numbers, numeric grades, and the rarity·type tag on every slab's label read like a technical cert, not a game UI, deliberately colder than the serif beside it.
 
 ### Hierarchy
 - **Display** (600, `text-xl`/`text-2xl`, serif): Page titles ("Abrir Pacote", "Catálogo"), the DotCard wordmark.
-- **Title** (600, `text-lg`, serif): Card names on CardArt's name banner, modal titles.
+- **Title** (600, `text-lg`, serif): Modal titles.
+- **Slab name** (600, 11px, serif): A CardArt label's own card name — smaller than Title, sized for grid density.
 - **Body** (400, `text-sm`, sans): Default UI copy, list rows, form values.
 - **Label** (600, `text-xs`, sans, uppercase, `0.05em` tracking): Section headers ("COLEÇÃO", "TAMANHO DO PACOTE"), field labels — always uppercase, always the faint/dim ink color, never full-strength parchment-white.
+- **Cert** (400-700, 7-8px, mono, uppercase where it's a tag): A slab's serial (`NO. 000042`), grade (`GR 8.3`, bold, rarity-colored), and rarity·type tag. Small on purpose — real grading-slab labels are dense — but every use clears AA contrast at that size.
 
 ### Named Rules
 **The Serif-Means-Precious Rule.** If the serif appears somewhere, that content is meant to feel collectible-grade. Don't reach for it on routine UI chrome (button labels, form inputs) — that dilutes the signal.
 
+**The Cert-Is-Cold Rule.** Mono type never carries warmth or personality — it's the register for facts (a serial, a grade), never for anything the serif or sans could say instead.
+
 ## Layout
 
-Single-column, centered layouts throughout — `max-w-md` (28rem) for focused single-task screens (Home, Login, Abrir Pacote, Amigos, Trocas), `max-w-4xl` (56rem) for the Nav shell and the Catálogo grid. No sidebar, no multi-column dashboard chrome — every screen is a narrow, mobile-friendly column even though phone-width has not yet been stress-tested.
+Single-column, centered layouts throughout — `max-w-md` (28rem) for focused single-task screens (Home, Login, Abrir Pacote, Amigos, Trocas), `max-w-4xl` (56rem) for the Nav shell and the Catálogo grid. No sidebar, no multi-column dashboard chrome. The Nav wraps onto a second line rather than clipping items on narrow viewports (`flex-wrap`, not `overflow-x-auto` with no scroll affordance) — every screen genuinely works down to 390px now, not just in theory.
 
 Spacing rhythm follows Tailwind's default scale directly: `gap-2` (8px) between tightly related controls (a row of pack-size buttons), `gap-4` (16px) between form fields, `gap-6` (24px) between distinct sections of a screen. Grids (Catálogo) use `gap-3` (12px) between tiles.
 
 ## Elevation & Depth
 
-Flat by default — the base UI does not use drop shadows for hierarchy. The one shadow vocabulary that exists is rarity glow, and it is **ambient, not structural**: it signals "this is valuable," not "this is elevated above the surface" or "this is interactive." A COMMON card sits perfectly flush with no shadow at all; a LEGENDARY card glows regardless of hover/focus state.
+Flat by default — the base UI does not use drop shadows for hierarchy. The one shadow vocabulary that exists is rarity glow, and it is **ambient, not structural**: it signals "this is valuable," not "this is elevated above the surface" or "this is interactive." A COMMON slab sits perfectly flush with no glow at all; a LEGENDARY slab glows regardless of hover/focus state.
 
 ### Shadow Vocabulary
-- **Rarity glow** (`box-shadow: 0 0 {0|9|16|24}px 0 color-mix(in srgb, {rarity-color} 45%, transparent)`): scales with COMMON→LEGENDARY. The only shadow in the system.
-- **Pack glow** (`box-shadow: 0 0 44-60px -4-6px color-mix(in srgb, var(--color-legendary) 45-60%, transparent)`): the pack-opening screen's version of the same idea, applied to the booster pack itself rather than a card.
+- **Rarity glow** (`box-shadow: 0 0 {0|9|16|24}px 0 color-mix(in srgb, {rarity-color} 45%, transparent)`): scales with COMMON→LEGENDARY, applied to the slab's outer case. The only shadow in the system.
+- **Pack glow** (`box-shadow: 0 0 44-60px -4-6px color-mix(in srgb, var(--color-legendary) 45-60%, transparent)`): the pack-opening screen's version of the same idea, applied to the sealed booster pack itself — a different object from a graded card, so it keeps its own gift/pack material language rather than becoming a slab.
 
 ### Named Rules
 **The Flat-Unless-Rare Rule.** Nothing gets a shadow by default. A shadow is always the rarity system speaking, never a generic "card" or "panel" affordance.
 
 ## Shapes
 
-Rounded-but-not-soft: `rounded-lg` (10px) for buttons, inputs, and select fields; `rounded-2xl` (18px) for CardArt's outer holo-foil frame and larger surfaces (dialogs, panels); a nested `rounded-[13px]` for CardArt's inner image, one step tighter than its own outer frame so the foil border reads as a consistent ring rather than concentric mismatched curves. Borders are hairline (`#333338`, 1px) everywhere they appear — never a heavier structural border.
+Rounded-but-not-soft, and slightly tighter than the identity's first version: `rounded-lg` (10px) for buttons, inputs, select fields, and a slab's outer case; a nested `rounded-[7px]` for the case's inner content well, one step tighter than the case so the acrylic edge reads as a consistent ring rather than concentric mismatched curves. `rounded-2xl` (18px) is reserved for larger flat panels — dialogs, the login form, Home's balance card — that aren't slabs. Borders are hairline (`#333338`, 1px) everywhere they appear, solid on an owned slab's case and **dashed** specifically on a locked/empty case, the one place border style itself carries meaning.
 
 ## Components
 
-Every interactive surface is meant to carry a trace of the same material the cards are printed on — foil, sheen, rarity-glow — rather than reading as generic flat SaaS UI. Today `CardArt` fully embodies this (holo-foil gradient border, rarity glow, wear texture); the booster-pack cover pushes it further (foil sheen texture, pulsing glow on open); plain UI chrome (buttons, inputs, nav) currently under-expresses it and is the surface most worth extending — a button's hover state, a focus ring, or an active nav link is where a foil-edge or rarity-glow echo belongs next, not a generic color-darken.
+Every slab carries a trace of the object it represents — a real serial, a real grade, rarity-as-holo-strip — rather than reading as generic flat SaaS UI. Plain UI chrome (buttons, inputs, nav) stays deliberately quieter than a slab: the drama budget is spent on certifying a card, not on decorating a button.
 
 ### Buttons
 - **Shape:** `rounded-lg` (10px), border-transparent by default.
 - **Primary:** Molten Gold background, near-black text (`#241a06`) — the highest-contrast pairing in the system, reserved for the one primary action per screen.
 - **Hover / Focus:** primary dims to 80% opacity on hover; focus shows a 3px gold ring (`--ring`) — the same gold as the primary action, so focus always reads as "the gold system," never a generic blue.
 - **Outline / Ghost / Destructive:** outline uses void-black fill with a hairline border; ghost is transparent until hover; destructive uses Destructive Ember at 10% background / full-strength text, reserved for irreversible actions (declining an invite, cancelling a trade).
-- **Signature interactive surface — the pack button:** the "Abrir pacote" action is not a `<button>Abrir pacote</button>` — it *is* the pack art itself, scaling up 3% on hover and down 3% on press, with a permanent rarity-style gold glow. This is the clearest expression of "the UI is packaging" in the whole app and should be the reference for any future primary action tied to a physical collectible metaphor.
+- **Signature interactive surface — the pack button:** the "Abrir pacote" action is not a `<button>Abrir pacote</button>` — it *is* the sealed-pack art itself, scaling up 3% on hover and down 3% on press, with a permanent gold glow. A pack is not yet a slab — it's what a slab comes from — so it keeps its own gift-wrap material language (foil sheen, pulsing glow) rather than the case/label language below.
 
 ### Cards / Containers
-- **Corner Style:** `rounded-2xl` (18px) for panels (login form, Home's balance card, dialogs); CardArt itself uses the same 18px outer / 13px inner pairing described in Shapes.
-- **Background:** Charcoal Surface (`#17171a`), occasionally Slate Surface (`#202024`) for a secondary/nested surface (input fields sit on Slate Surface even inside a Charcoal Surface panel, keeping a two-step depth cue without ever using a shadow).
-- **Shadow Strategy:** none by default (see Elevation & Depth) — a container's only shadow is the rarity glow, when it's a card.
-- **Border:** 1px hairline (`#333338`) on every panel and card.
-- **Internal Padding:** `p-5` (20px) on panels; CardArt's frame padding is `3px` (the holo-foil ring itself).
+- **Corner Style:** `rounded-2xl` (18px) for flat panels (login form, Home's balance card, dialogs) — these are not slabs and don't take the case treatment.
+- **Background:** Charcoal Surface (`#17171a`) for panels; Slate Surface (`#202024`) for a slab's own case interior/label and for input fields — a two-step depth cue without ever using a shadow.
+- **Shadow Strategy:** none by default (see Elevation & Depth) — a slab's only shadow is its rarity glow.
+- **Border:** 1px hairline (`#333338`) on every panel; solid on an owned slab, dashed on a locked/empty one.
+- **Internal Padding:** `p-5` (20px) on flat panels; a slab's case padding is `3px` (the acrylic-edge ring itself), with `6px`/`4px` (`px-1.5 py-1`) inside the label strip.
 
 ### Inputs / Fields
 - **Style:** Slate Surface background, hairline border, `rounded-lg`, `px-3 py-2`.
 - **Focus:** border shifts to Molten Gold (`focus-visible:border-legendary`) — no glow, no ring on plain text inputs; the gold border alone is enough.
-- **Labels:** always the Label typography role — uppercase, tracked-out, Parchment Dim — sitting directly above the field, never inline or floating.
+- **Labels:** always the Label typography role — uppercase, tracked-out, Parchment Dim — sitting directly above the field, associated via `htmlFor`/`id` (every select/input in the app is now properly labeled for assistive tech), never inline or floating.
 
 ### Navigation
-- Fixed top bar, `max-w-4xl`, hairline bottom border. Links are Parchment Dim by default, Molten Gold + semibold when active (`aria-current="page"`) — the only place an active/selected state is communicated by color alone rather than gold + glow, because a nav bar is wayfinding, not a collectible.
+- Top bar, `max-w-4xl`, hairline bottom border, `flex-wrap` (never clips a link off-screen — see Layout). Links are Parchment Dim by default, Molten Gold + semibold when active (`aria-current="page"`) — the only place an active/selected state is communicated by color alone rather than gold + glow, because a nav bar is wayfinding, not a collectible.
 
-### CardArt (signature component)
-The holo-foil gradient border (`linear-gradient(135deg, {rarity}, #fff 45%, {rarity} 60%, {rarity-soft} 80%, {rarity})`) is a padding trick, not a border-image — a 3px padding reveals the gradient background as a ring. Layered inside: a diagonal repeating-gradient sheen (`115deg`, blended `overlay`), an SVG-noise grain layer and scratch marks whose opacity is driven by the card's real `float_value` (cosmetic wear, unique per exemplar), and a unified rarity+type medallion (top-left) plus a clip-path name banner (bottom) — both omitted in `compact` mode for small thumbnails. Locked (unowned) cards render as a flat hairline-bordered silhouette with a centered lock icon at 40% opacity — deliberately inert, no gradient, no glow, so an unowned card never competes visually with an owned one.
+### CardArt — "the slab" (signature component)
+The case is a glassy, **colorless** acrylic edge (`linear-gradient(135deg, rgba(255,255,255,.24), rgba(255,255,255,.02) 45%, rgba(255,255,255,.14) 75%, rgba(255,255,255,.24))`) — a 3px padding trick, not a border-image — topped by a label strip (hidden in `compact` mode for small thumbnails):
+1. A 4px **holo rarity strip**, a rarity-colored gradient with a diagonal light-sheen overlay — this is where rarity color is concentrated now, not the whole case border.
+2. A serial/grade row (mono, only when the exemplar's `wear` data is present — i.e. it's owned): `NO. 000042` left, `GR 8.3` right, GR always colored by that card's own rarity accent (never a flat gold, matching The Reserved Gold Rule).
+3. The card name (serif, 11px, semibold) — always rendered when the label is shown, so every owned slab in a grid has identical label height regardless of whether its art loaded.
+4. A rarity·type tag (mono, 7px, uppercase, truncated so "LEGENDARY · CREATURE" never wraps onto a second line at grid/mobile widths).
+
+Below the label, the art well carries the same wear system as before: an SVG-noise grain layer, three procedurally-scratched layers (hairline/scuff/gouge, gradient ids namespaced per-exemplar so adjacent cards in a grid never collide), four corner smudges, and an inset vignette, all scaled by the exemplar's real `float_value` — the same data that now also drives the visible GR number, so the numeric grade and the visible wear always agree. Locked (unowned) cards render as an empty case: a dashed hairline outline, a blank label-height strip with no content, and a centered lock icon at 40% opacity — deliberately inert, no gradient, no glow, so an unowned card never competes visually with a certified one.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** reserve Molten Gold for the primary action and LEGENDARY rarity — never a decorative accent elsewhere on the same screen.
+- **Do** reserve Molten Gold for the primary action and LEGENDARY rarity — never a decorative accent elsewhere on the same screen, including a GR value or a count badge on a non-legendary card.
 - **Do** let rarity be the only source of glow/shadow in the system (0/9/16/24px COMMON→LEGENDARY).
-- **Do** use the serif display face only for content that should feel collectible-grade (titles, card names) — not for buttons or form labels.
-- **Do** treat a primary action tied to a physical-collectible metaphor (opening a pack) as the object itself, not a separate button floating below it.
+- **Do** use the serif display face only for content that should feel collectible-grade (titles, a slab's card name) — not for buttons or form labels.
+- **Do** keep a slab's label height constant regardless of art/data availability — render the name unconditionally, gate only what genuinely has nothing to show (serial/grade with no `wear`).
+- **Do** namespace any per-exemplar generated SVG id by that exemplar's own identity, not just a locally-shifted seed, whenever more than one card can render on the same page.
 
 ### Don't:
 - **Don't** add drop shadows for generic UI hierarchy (dropdown menus, sticky headers) — depth comes from the surface/ground contrast (Charcoal vs. Slate vs. Void), not shadows.
 - **Don't** introduce a second accent color alongside gold. Secondary/tertiary color only exists as the rarity ladder.
 - **Don't** reach for celebratory mobile-freemium patterns — confetti, toast pop-ups, badge/streak counters — even for genuinely good news (a LEGENDARY pull, a completed trade). The existing pack-shake + glow language is the ceiling for celebration.
 - **Don't** ship a light theme or a `prefers-color-scheme` variant. The identity is dark-only; `dark:` variants stay permanently inert behind a `.dark` class the app never applies.
+- **Don't** let a slab's own label and a nearby list (the exemplar-list modal, a duplicate-count badge) disagree on how the same rarity is colored — one `RARITY_ACCENT` map (`src/shared/rarity.ts`), never a locally hardcoded gold.
