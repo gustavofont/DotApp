@@ -3,7 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { dotCardClient } from "../../api/client";
 import { CardArt } from "../../shared/components/CardArt";
 import { Button } from "../../components/ui/button";
+import { CardDetailModal } from "./CardDetailModal";
+import type { components } from "../../api/dotcard.types";
 
+type CardResponseDto = components["schemas"]["CardResponseDto"];
+type GeneratedCardResponseDto = components["schemas"]["GeneratedCardResponseDto"];
 type Rarity = "COMMON" | "RARE" | "EPIC" | "LEGENDARY";
 type CardType = "CREATURE" | "LAND" | "SORCERY" | "ARTIFACT";
 
@@ -13,6 +17,7 @@ const TYPES: CardType[] = ["CREATURE", "LAND", "SORCERY", "ARTIFACT"];
 export function Catalog() {
   const [rarityFilter, setRarityFilter] = useState<Rarity | null>(null);
   const [typeFilter, setTypeFilter] = useState<CardType | null>(null);
+  const [selectedCard, setSelectedCard] = useState<CardResponseDto | null>(null);
 
   const cardsQuery = useQuery({
     queryKey: ["cards"],
@@ -32,9 +37,17 @@ export function Catalog() {
     },
   });
 
-  const ownedCardIds = useMemo(() => {
-    const items = myCardsQuery.data?.items ?? [];
-    return new Set(items.map((exemplar) => exemplar.card.id));
+  const exemplarsByCardId = useMemo(() => {
+    const map = new Map<number, GeneratedCardResponseDto[]>();
+    for (const exemplar of myCardsQuery.data?.items ?? []) {
+      const existing = map.get(exemplar.card.id);
+      if (existing) {
+        existing.push(exemplar);
+      } else {
+        map.set(exemplar.card.id, [exemplar]);
+      }
+    }
+    return map;
   }, [myCardsQuery.data]);
 
   const cards = cardsQuery.data?.items ?? [];
@@ -53,7 +66,7 @@ export function Catalog() {
         <h1 className="font-serif text-xl font-semibold text-ink">Catálogo</h1>
         {cardsQuery.data ? (
           <span className="text-sm text-ink-faint">
-            {ownedCardIds.size} / {cardsQuery.data.total}
+            {exemplarsByCardId.size} / {cardsQuery.data.total}
           </span>
         ) : null}
       </div>
@@ -96,19 +109,42 @@ export function Catalog() {
       {error ? <p className="text-destructive">Não foi possível carregar o catálogo.</p> : null}
 
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
-        {filteredCards.map((card) => (
-          <div key={card.id}>
-            <CardArt
-              name={card.name}
-              imageUrl={card.imageUrl}
-              rarity={card.rarity}
-              cardType={card.type}
-              locked={!ownedCardIds.has(card.id)}
-            />
-            <p className="mt-1 truncate text-xs text-ink-dim">{card.name}</p>
-          </div>
-        ))}
+        {filteredCards.map((card) => {
+          const exemplars = exemplarsByCardId.get(card.id) ?? [];
+          return (
+            <button
+              key={card.id}
+              type="button"
+              onClick={() => setSelectedCard(card)}
+              className="text-left"
+            >
+              <div className="relative">
+                <CardArt
+                  name={card.name}
+                  imageUrl={card.imageUrl}
+                  rarity={card.rarity}
+                  cardType={card.type}
+                  locked={exemplars.length === 0}
+                />
+                {exemplars.length > 1 ? (
+                  <span className="absolute -right-1 -bottom-1 rounded-full border-2 border-ground bg-legendary px-1.5 py-0.5 text-[10px] font-bold text-[#241a06]">
+                    ×{exemplars.length}
+                  </span>
+                ) : null}
+              </div>
+              <p className="mt-1 truncate text-xs text-ink-dim">{card.name}</p>
+            </button>
+          );
+        })}
       </div>
+
+      <CardDetailModal
+        card={selectedCard}
+        exemplars={selectedCard ? (exemplarsByCardId.get(selectedCard.id) ?? []) : []}
+        onOpenChange={(open) => {
+          if (!open) setSelectedCard(null);
+        }}
+      />
     </div>
   );
 }

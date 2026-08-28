@@ -185,8 +185,8 @@ export function PullReveal() {
           <Button type="button" onClick={() => send({ type: "RESET" })}>
             Abrir outro pacote
           </Button>
-          <Link to="/collection" className="text-center text-sm text-ink-dim hover:text-ink">
-            Ver acervo
+          <Link to="/catalog" className="text-center text-sm text-ink-dim hover:text-ink">
+            Ver catálogo
           </Link>
         </div>
       ) : null}

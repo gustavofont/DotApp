@@ -21,7 +21,7 @@ describe("Nav", () => {
   it("renders a link to every protected screen", () => {
     renderNav("/");
 
-    for (const label of ["Home", "Catálogo", "Abrir Pacote", "Acervo", "Amigos", "Trocas"]) {
+    for (const label of ["Home", "Catálogo", "Abrir Pacote", "Amigos", "Trocas"]) {
       expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
     }
   });

@@ -6,7 +6,6 @@ import { Layout } from "./shared/components/Layout";
 import { Home } from "./features/home/Home";
 import { Catalog } from "./features/catalog/Catalog";
 import { PullReveal } from "./features/pull-reveal/PullReveal";
-import { Collection } from "./features/collection/Collection";
 import { Friends } from "./features/friends/Friends";
 import { Trades } from "./features/trades/Trades";
 
@@ -21,7 +20,6 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/catalog" element={<Catalog />} />
               <Route path="/pull" element={<PullReveal />} />
-              <Route path="/collection" element={<Collection />} />
               <Route path="/friends" element={<Friends />} />
               <Route path="/trades" element={<Trades />} />
             </Route>

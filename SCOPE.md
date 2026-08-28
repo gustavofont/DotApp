@@ -88,14 +88,15 @@ próxima do baralho, até esvaziar. Uma `LEGENDARY` sorteada ganha tratamento vi
 diferenciado no momento da própria revelação dela — não é genérico pra raridade, é específico
 do evento daquele pull.
 
-### Catálogo
-`GET /cards` cruzado com `GET /me/cards` — mostra o catálogo inteiro; cartas ainda não
-possuídas aparecem como silhueta bloqueada em vez de simplesmente sumir da lista.
-
-### Acervo (`GET /me/cards`)
-Agrupado por carta base com contador (`Village Squire ×3`), expansível pros exemplares
-individuais — cada um com seu próprio `float_value` (ver desgaste visual, abaixo). A view
-expandida é a mesma usada pra escolher um exemplar específico ao propor uma troca.
+### Catálogo (unifica o antigo "Acervo")
+`GET /cards` cruzado com `GET /me/cards` num único grid — não existe mais uma tela separada de
+acervo. Cartas ainda não possuídas aparecem como silhueta bloqueada em vez de simplesmente
+sumir da lista; possuídas com mais de uma cópia ganham um badge de contador (`×N`) sobre o
+`CardArt`. Clicar em qualquer card (possuído ou não) abre um popup (`CardDetailModal`) com o
+`CardArt` grande e, se possuído, a lista dos exemplares individuais — cada um com seu próprio
+`float_value` (ver desgaste visual, abaixo). Essa lista de exemplares é um componente separado
+(`ExemplarList`) justamente para ser reaproveitada como a view de escolher um exemplar
+específico ao propor uma troca.
 
 ### Amigos
 Lista de amigos + convites pendentes (entrada/saída), convidar por `friendCode`, rotacionar o
