@@ -13,6 +13,8 @@ export function Home() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-10">
+      <h1 className="mb-6 font-serif text-xl font-semibold text-ink">Home</h1>
+
       {isLoading ? <p className="text-ink-dim">Carregando…</p> : null}
       {error ? <p className="text-destructive">Não foi possível carregar seu perfil.</p> : null}
 

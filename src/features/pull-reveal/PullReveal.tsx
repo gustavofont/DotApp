@@ -66,10 +66,14 @@ export function PullReveal() {
       {state.matches("idle") ? (
         <div className="flex flex-col items-center gap-6">
           <div className="w-full">
-            <label className="mb-1 block text-xs font-semibold tracking-wide text-ink-faint uppercase">
+            <label
+              htmlFor="pull-collection"
+              className="mb-1 block text-xs font-semibold tracking-wide text-ink-faint uppercase"
+            >
               Coleção
             </label>
             <select
+              id="pull-collection"
               value={collectionId ?? ""}
               onChange={(event) => setCollectionId(Number(event.target.value))}
               className="w-full rounded-lg border border-hairline bg-surface-2 px-3 py-2 text-ink"

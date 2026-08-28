@@ -188,7 +188,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .pack-shake,
-  .pack-glow-pulse {
+  .pack-glow-pulse,
+  .animate-pulse {
     animation: none;
   }
 }

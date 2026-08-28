@@ -102,6 +102,7 @@ export function CardArt({
           <img
             src={imageUrl}
             alt={name}
+            loading="lazy"
             className="h-full w-full object-cover"
             style={wearStyle ? { filter: wearStyle.filter } : undefined}
           />
