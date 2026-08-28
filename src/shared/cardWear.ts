@@ -168,6 +168,10 @@ export function gradeFromFloat(floatValue: number): string {
   return ((1 - floatValue) * 10).toFixed(1);
 }
 
+export function paddedSerial(seed: number): string {
+  return String(seed).padStart(6, "0");
+}
+
 export function serialFromSeed(seed: number): string {
-  return `NO. ${String(seed).padStart(6, "0")}`;
+  return `NO. ${paddedSerial(seed)}`;
 }
