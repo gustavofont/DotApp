@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "../../components/ui/dialog";
 import { CardArt } from "../../shared/components/CardArt";
-import { gradeFromFloat, paddedSerial } from "../../shared/cardWear";
+import { gradeFromFloat } from "../../shared/cardWear";
 import { RARITY_ACCENT } from "../../shared/rarity";
 import type { components } from "../../api/dotcard.types";
 
@@ -24,7 +24,7 @@ export function ExemplarList({ exemplars }: { exemplars: GeneratedCardResponseDt
           <span className="font-bold" style={{ color: RARITY_ACCENT[exemplar.card.rarity] }}>
             GR {gradeFromFloat(exemplar.floatValue)}
           </span>
-          <span className="text-ink-faint"> ({paddedSerial(Number(exemplar.id))})</span>
+          <span className="text-ink-faint"> (#{exemplar.id})</span>
         </div>
       ))}
     </div>
