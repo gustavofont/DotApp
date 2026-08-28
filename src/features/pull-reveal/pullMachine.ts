@@ -18,17 +18,29 @@ type PullEvent =
   | { type: "REVEAL_NEXT" }
   | { type: "RESET" };
 
+// The opening animation needs room to play — on a fast local backend the
+// real request resolves in tens of ms, which would cut it off before it
+// reads as an animation at all. Errors skip this floor entirely, so a
+// failure surfaces immediately instead of being held for no reason.
+const MIN_OPENING_MS = 1100;
+
 async function openPack({
   input,
 }: {
   input: { collectionId: number; size: PackSize };
 }): Promise<GeneratedCard[]> {
+  const startedAt = Date.now();
   const { data, error, response } = await dotCardClient.POST("/collections/{id}/pulls", {
     params: { path: { id: input.collectionId } },
     body: { size: input.size },
   });
   if (error) {
     throw new Error(response.status === 402 ? "insufficient_balance" : "generic");
+  }
+
+  const remaining = MIN_OPENING_MS - (Date.now() - startedAt);
+  if (remaining > 0) {
+    await new Promise((resolve) => setTimeout(resolve, remaining));
   }
   return data;
 }

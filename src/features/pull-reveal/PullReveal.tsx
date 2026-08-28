@@ -125,19 +125,25 @@ export function PullReveal() {
       ) : null}
 
       {state.matches("opening") ? (
-        <div className="flex flex-col items-center gap-4 py-10">
-          <div className="relative h-56 w-40">
-            {[10, 5, 0].map((offset, i) => (
-              <div
-                key={offset}
-                className="absolute inset-0"
-                style={{ transform: `translate(${offset / 2}px, ${offset / 2}px) rotate(${(i - 1) * 3}deg)` }}
-              >
-                <CardArt name="" imageUrl={null} rarity="COMMON" cardType="CREATURE" locked />
+        <div className="flex flex-col items-center gap-6 py-10">
+          <div className="relative w-56">
+            <div
+              className="pack-glow-pulse pointer-events-none absolute -inset-10 rounded-full blur-2xl"
+              style={{
+                background:
+                  "radial-gradient(circle, color-mix(in srgb, var(--color-legendary) 55%, transparent), transparent 70%)",
+              }}
+            />
+            <div className="pack-shake relative aspect-[2/3] overflow-hidden rounded-2xl shadow-[0_0_60px_-4px_color-mix(in_srgb,var(--color-legendary)_60%,transparent)]">
+              <img src={PACK_COVER_URL} alt="" className="h-full w-full object-cover" />
+              <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/75 via-black/10 to-transparent px-3 pt-3 pb-8">
+                <p className="text-center font-serif text-base font-semibold tracking-wide text-legendary-soft">
+                  DotCard
+                </p>
               </div>
-            ))}
+            </div>
           </div>
-          <p className="text-sm text-ink-dim">Abrindo…</p>
+          <p className="animate-pulse text-sm text-ink-dim">Abrindo…</p>
         </div>
       ) : null}
 

@@ -130,3 +130,60 @@ body {
     @apply font-sans;
   }
 }
+
+/* Pack-opening animation (pull-reveal's "opening" state) — a shaking,
+   pulsing pack while the real API call resolves underneath. */
+@keyframes pack-shake {
+  0%,
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+  10% {
+    transform: rotate(-3deg) scale(1.01);
+  }
+  20% {
+    transform: rotate(3deg) scale(1.01);
+  }
+  35% {
+    transform: rotate(-5deg) scale(1.02);
+  }
+  45% {
+    transform: rotate(5deg) scale(1.02);
+  }
+  60% {
+    transform: rotate(-3deg) scale(1.03);
+  }
+  70% {
+    transform: rotate(3deg) scale(1.03);
+  }
+  85% {
+    transform: rotate(-1deg) scale(1.01);
+  }
+}
+
+@keyframes pack-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+.pack-shake {
+  animation: pack-shake 1.1s ease-in-out infinite;
+}
+
+.pack-glow-pulse {
+  animation: pack-glow-pulse 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pack-shake,
+  .pack-glow-pulse {
+    animation: none;
+  }
+}
