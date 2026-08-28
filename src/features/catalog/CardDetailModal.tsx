@@ -19,12 +19,12 @@ export function ExemplarList({ exemplars }: { exemplars: GeneratedCardResponseDt
       {exemplars.map((exemplar) => (
         <div
           key={exemplar.id}
-          className="rounded-sm border border-hairline bg-surface-2 px-3 py-2 font-mono text-xs"
+          className="flex justify-between rounded-sm border border-hairline bg-surface-2 px-3 py-2 font-mono text-xs"
         >
+          <span className="text-ink-faint">#{exemplar.id}</span>
           <span className="font-bold" style={{ color: RARITY_ACCENT[exemplar.card.rarity] }}>
             GR {gradeFromFloat(exemplar.floatValue)}
           </span>
-          <span className="text-ink-faint"> (#{exemplar.id})</span>
         </div>
       ))}
     </div>
