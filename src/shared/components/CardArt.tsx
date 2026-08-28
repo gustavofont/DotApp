@@ -1,33 +1,10 @@
 import { Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getWearStyle } from "../cardWear";
+import { getWearStyle, gradeFromFloat, serialFromSeed } from "../cardWear";
+import { RARITY_ACCENT, RARITY_ACCENT_SOFT, RARITY_GLOW } from "../rarity";
 import { TypeIcon, type CardType } from "../typeIcons";
 
 type Rarity = "COMMON" | "RARE" | "EPIC" | "LEGENDARY";
-
-// Mirrors RARITY_STYLE in DotCardGenerator/card_composer.py — same accent
-// colors and glow escalation, now driving a CSS-only frame instead of a
-// frame baked into the served image (DotApp/SCOPE.md §2).
-const RARITY_ACCENT: Record<Rarity, string> = {
-  COMMON: "var(--color-common)",
-  RARE: "var(--color-rare)",
-  EPIC: "var(--color-epic)",
-  LEGENDARY: "var(--color-legendary)",
-};
-
-const RARITY_ACCENT_SOFT: Record<Rarity, string> = {
-  COMMON: "#c7c7cc",
-  RARE: "#7fb0f0",
-  EPIC: "#c584f0",
-  LEGENDARY: "var(--color-legendary-soft)",
-};
-
-const RARITY_GLOW: Record<Rarity, number> = {
-  COMMON: 0,
-  RARE: 9,
-  EPIC: 16,
-  LEGENDARY: 24,
-};
 
 // Ported from the wear prototype's `.grain` layer — SVG feTurbulence, blended
 // with `overlay` so it reads as fine paper/photo grain rather than static.
@@ -46,11 +23,11 @@ export interface CardArtProps {
   imageUrl: string | null;
   rarity: Rarity;
   cardType: CardType;
-  /** Present only for an owned exemplar — drives the wear treatment. Omit for a catalog-only (unowned, or ownership-agnostic) card. */
+  /** Present only for an owned exemplar — drives the wear treatment and the label's serial/grade. Omit for a catalog-only (unowned, or ownership-agnostic) card. */
   wear?: { floatValue: number; seed: number };
-  /** Renders a locked silhouette instead of art — a catalog card the player doesn't own yet. */
+  /** Renders an empty, uncertified case instead of art — a catalog card the player doesn't own yet. */
   locked?: boolean;
-  /** Hides the medallion and name banner — for small thumbnails (e.g. Collection's list rows) where the name is already shown as text alongside the art and the banner has no room to stay legible. */
+  /** Hides the label strip — for small thumbnails (e.g. trade/pick grids) where the name is already shown as text alongside the art and the label has no room to stay legible. */
   compact?: boolean;
   className?: string;
 }
@@ -71,11 +48,12 @@ export function CardArt({
         role="img"
         aria-label={`${name} (ainda não obtida)`}
         className={cn(
-          "relative aspect-[3/4.2] overflow-hidden rounded-2xl border border-hairline bg-surface-2",
+          "relative flex aspect-[3/4.2] flex-col overflow-hidden rounded-lg border border-dashed border-hairline bg-surface-2",
           className,
         )}
       >
-        <div className="absolute inset-0 flex items-center justify-center opacity-40">
+        <div className="h-5 shrink-0 border-b border-dashed border-hairline" />
+        <div className="flex flex-1 items-center justify-center opacity-40">
           <Lock className="h-6 w-6 text-ink-faint" />
         </div>
       </div>
@@ -88,101 +66,127 @@ export function CardArt({
   const wearStyle = wear ? getWearStyle(wear.floatValue, wear.seed) : null;
 
   return (
-    // Holo-foil border: the gradient background *is* the border, showing
-    // through a small padding — no border-image needed.
+    // The case: a glassy, colorless acrylic edge (not a rarity-colored
+    // border) — rarity now lives in the label's holo strip below.
     <div
-      className={cn("aspect-[3/4.2] rounded-2xl p-[3px]", className)}
+      className={cn("aspect-[3/4.2] rounded-lg p-[3px]", className)}
       style={{
-        background: `linear-gradient(135deg, ${accent}, #fff 45%, ${accent} 60%, ${accentSoft} 80%, ${accent})`,
+        background:
+          "linear-gradient(135deg, rgba(255,255,255,0.24), rgba(255,255,255,0.02) 45%, rgba(255,255,255,0.14) 75%, rgba(255,255,255,0.24))",
         boxShadow: glow > 0 ? `0 0 ${glow * 1.2}px 0 color-mix(in srgb, ${accent} 45%, transparent)` : undefined,
       }}
     >
-      <div className="relative h-full w-full overflow-hidden rounded-[13px]">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={name}
-            loading="lazy"
-            className="h-full w-full object-cover"
-            style={wearStyle ? { filter: wearStyle.filter } : undefined}
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center bg-surface-2 p-2 text-center text-xs text-ink-faint">
-            {name}
-          </div>
-        )}
-
-        {wearStyle ? (
-          <>
+      <div className="flex h-full w-full flex-col overflow-hidden rounded-[7px] bg-surface-2">
+        {!compact ? (
+          <div className="shrink-0">
+            {/* Holo rarity strip — a thin certified-authenticity band. */}
             <div
-              className="pointer-events-none absolute inset-0"
-              style={{
-                backgroundImage: GRAIN_DATA_URI,
-                mixBlendMode: "overlay",
-                opacity: wearStyle.grainOpacity,
-              }}
-            />
-            <div
-              className="pointer-events-none absolute inset-0"
-              // Layered <svg> scratch markup from getWearStyle — see shared/cardWear.ts.
-              dangerouslySetInnerHTML={{ __html: wearStyle.scratchLayersMarkup }}
-            />
-            {CORNERS.map((corner) => (
+              className="relative h-1 overflow-hidden"
+              style={{ background: `linear-gradient(90deg, ${accent}, ${accentSoft}, ${accent})` }}
+            >
               <div
-                key={corner.key}
-                className="pointer-events-none absolute h-1/3 w-[46%]"
+                className="absolute inset-0"
                 style={{
-                  ...corner.style,
-                  opacity: wearStyle.cornerOpacity,
-                  background: "radial-gradient(ellipse at center, rgba(20,16,10,0.9), transparent 70%)",
-                  mixBlendMode: "multiply",
+                  backgroundImage:
+                    "repeating-linear-gradient(115deg, rgba(255,255,255,0.5) 0 2px, transparent 2px 6px)",
+                  mixBlendMode: "overlay",
                 }}
               />
-            ))}
-            <div
-              className="pointer-events-none absolute inset-0"
-              style={{ boxShadow: wearStyle.vignetteBoxShadow }}
-            />
-          </>
-        ) : null}
-
-        {imageUrl ? (
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(115deg, rgba(255,255,255,0.14) 0 5px, transparent 5px 24px)",
-              mixBlendMode: "overlay",
-            }}
-          />
-        ) : null}
-
-        {!compact ? (
-          <>
-            {/* Rarity + type medallion, unified — not two separate badges. */}
-            <div
-              className="absolute top-2 left-2 flex h-6 w-6 items-center justify-center rounded-full"
-              style={{
-                background: `radial-gradient(circle at 35% 30%, ${accentSoft}, ${accent})`,
-                boxShadow: `0 0 8px ${accent}, 0 0 0 2px rgba(0,0,0,0.6)`,
-              }}
-            >
-              <TypeIcon type={cardType} ink="#0c0c0e" cutout={accent} className="h-4 w-4" />
             </div>
 
-            {imageUrl ? (
-              <div
-                className="absolute bottom-[9%] left-1/2 -translate-x-1/2 px-4 py-1 font-serif text-xs font-bold whitespace-nowrap text-[#0c0c0e]"
-                style={{
-                  background: `linear-gradient(180deg, ${accentSoft}, ${accent})`,
-                  clipPath: "polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%)",
-                }}
-              >
-                {name}
+            <div className="px-1.5 py-1">
+              {wear ? (
+                <div className="flex items-center justify-between font-mono text-[8px] text-ink-faint">
+                  <span>{serialFromSeed(wear.seed)}</span>
+                  <span className="font-bold" style={{ color: accent }}>
+                    GR {gradeFromFloat(wear.floatValue)}
+                  </span>
+                </div>
+              ) : null}
+
+              <p className="truncate font-serif text-[11px] font-semibold text-ink">{name}</p>
+
+              <div className="flex min-w-0 items-center gap-1">
+                <TypeIcon
+                  type={cardType}
+                  ink={accent}
+                  cutout="var(--color-surface-2)"
+                  className="h-2.5 w-2.5 shrink-0"
+                />
+                <span className="truncate font-mono text-[7px] tracking-wide text-ink-faint uppercase">
+                  {rarity} · {cardType}
+                </span>
               </div>
-            ) : null}
-          </>
+            </div>
+          </div>
         ) : null}
+
+        <div className="relative min-h-0 flex-1 overflow-hidden">
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt={name}
+              loading="lazy"
+              className="h-full w-full object-cover"
+              style={wearStyle ? { filter: wearStyle.filter } : undefined}
+            />
+          ) : compact ? (
+            // Compact hides the label strip, so this is the only place the
+            // name can appear. Non-compact skips it — the label above
+            // already shows the name, and repeating it here would be a
+            // second, differently-styled copy of the same text.
+            <div className="flex h-full items-center justify-center bg-surface-2 p-2 text-center text-xs text-ink-faint">
+              {name}
+            </div>
+          ) : (
+            <div className="h-full bg-surface-2" />
+          )}
+
+          {wearStyle ? (
+            <>
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  backgroundImage: GRAIN_DATA_URI,
+                  mixBlendMode: "overlay",
+                  opacity: wearStyle.grainOpacity,
+                }}
+              />
+              <div
+                className="pointer-events-none absolute inset-0"
+                // Layered <svg> scratch markup from getWearStyle — see shared/cardWear.ts.
+                dangerouslySetInnerHTML={{ __html: wearStyle.scratchLayersMarkup }}
+              />
+              {CORNERS.map((corner) => (
+                <div
+                  key={corner.key}
+                  className="pointer-events-none absolute h-1/3 w-[46%]"
+                  style={{
+                    ...corner.style,
+                    opacity: wearStyle.cornerOpacity,
+                    background: "radial-gradient(ellipse at center, rgba(20,16,10,0.9), transparent 70%)",
+                    mixBlendMode: "multiply",
+                  }}
+                />
+              ))}
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{ boxShadow: wearStyle.vignetteBoxShadow }}
+              />
+            </>
+          ) : null}
+
+          {imageUrl ? (
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(115deg, rgba(255,255,255,0.14) 0 5px, transparent 5px 24px)",
+                mixBlendMode: "overlay",
+              }}
+            />
+          ) : null}
+        </div>
       </div>
     </div>
   );

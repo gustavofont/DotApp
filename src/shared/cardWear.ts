@@ -80,7 +80,7 @@ interface ScratchLayerOptions {
   baseOpacity: number;
 }
 
-function scratchLayer(f: number, seed: number, opts: ScratchLayerOptions): string {
+function scratchLayer(f: number, seed: number, idNamespace: string, opts: ScratchLayerOptions): string {
   const count = Math.round(f * opts.countScale);
   if (count === 0) return "";
 
@@ -101,7 +101,7 @@ function scratchLayer(f: number, seed: number, opts: ScratchLayerOptions): strin
     const my = (y1 + y2) / 2 + Math.cos(angle) * bend;
     const w = opts.widthMin + rand() * (opts.widthMax - opts.widthMin);
     const op = opts.baseOpacity * (0.45 + rand() * 0.55) * Math.min(1, f * 1.3);
-    const id = `sc${seed}_${i}`;
+    const id = `sc${idNamespace}_${i}`;
 
     defs += `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}">
       <stop offset="0%" stop-color="${opts.color}" stop-opacity="0"/>
@@ -116,8 +116,13 @@ function scratchLayer(f: number, seed: number, opts: ScratchLayerOptions): strin
 }
 
 function wearLayers(f: number, seedBase: number): string {
+  // RNG seeds (seedBase+1/+2/+3) can collide across adjacent exemplars —
+  // e.g. exemplar 85's "scuffs" (seed 87) vs exemplar 86's "hairlines"
+  // (seed 87) — so gradient ids are namespaced by seedBase + layer name,
+  // not by the (colliding) shifted seed, to stay unique when many CardArts
+  // render on the same page (a grid, a picker) and share `<defs>` scope.
   // Many fine hairlines — the bulk of ordinary handling wear.
-  const hairlines = scratchLayer(f, seedBase + 1, {
+  const hairlines = scratchLayer(f, seedBase + 1, `${seedBase}h`, {
     countScale: 16,
     color: "white",
     blend: "screen",
@@ -129,7 +134,7 @@ function wearLayers(f: number, seedBase: number): string {
     baseOpacity: 0.32,
   });
   // A few bolder scuffs — catch more light, read as real gouges.
-  const scuffs = scratchLayer(f, seedBase + 2, {
+  const scuffs = scratchLayer(f, seedBase + 2, `${seedBase}s`, {
     countScale: 3.5,
     color: "white",
     blend: "screen",
@@ -141,7 +146,7 @@ function wearLayers(f: number, seedBase: number): string {
     baseOpacity: 0.48,
   });
   // A couple of dark gouges — deeper damage, sparse.
-  const gouges = scratchLayer(f, seedBase + 3, {
+  const gouges = scratchLayer(f, seedBase + 3, `${seedBase}g`, {
     countScale: 2.2,
     color: "black",
     blend: "multiply",
@@ -153,4 +158,16 @@ function wearLayers(f: number, seedBase: number): string {
     baseOpacity: 0.38,
   });
   return hairlines + scuffs + gouges;
+}
+
+// "The Grading Slab" direction — a PSA/BGS-style 0-10 grade and cert serial,
+// both purely derived from data the app already has (float_value, the
+// exemplar's own id). Lower float = better condition, same convention the
+// app already used to pick a card's "best" copy.
+export function gradeFromFloat(floatValue: number): string {
+  return ((1 - floatValue) * 10).toFixed(1);
+}
+
+export function serialFromSeed(seed: number): string {
+  return `NO. ${String(seed).padStart(6, "0")}`;
 }

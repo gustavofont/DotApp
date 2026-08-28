@@ -37,6 +37,10 @@
     "Liberation Serif", serif;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
     sans-serif;
+  /* The Grading Slab direction's certificate/serial-number face — labels
+     read like a technical cert, not a game UI. */
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Roboto Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
 }
 
 :root {

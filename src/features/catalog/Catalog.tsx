@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { dotCardClient } from "../../api/client";
 import { CardArt } from "../../shared/components/CardArt";
 import { Button } from "../../components/ui/button";
+import { RARITY_ACCENT } from "../../shared/rarity";
 import { CardDetailModal } from "./CardDetailModal";
 import type { components } from "../../api/dotcard.types";
 
@@ -111,6 +112,13 @@ export function Catalog() {
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
         {filteredCards.map((card) => {
           const exemplars = exemplarsByCardId.get(card.id) ?? [];
+          // Lowest float = best condition — same convention as the modal's
+          // "best" exemplar and the grid tile now shows it via CardArt's
+          // own serial/grade label instead of staying silent about it.
+          const best =
+            exemplars.length > 0
+              ? [...exemplars].sort((a, b) => a.floatValue - b.floatValue)[0]
+              : null;
           return (
             <button
               key={card.id}
@@ -125,14 +133,25 @@ export function Catalog() {
                   rarity={card.rarity}
                   cardType={card.type}
                   locked={exemplars.length === 0}
+                  wear={best ? { floatValue: best.floatValue, seed: Number(best.id) } : undefined}
                 />
                 {exemplars.length > 1 ? (
-                  <span className="absolute -right-1 -bottom-1 rounded-full border-2 border-ground bg-legendary px-1.5 py-0.5 text-[10px] font-bold text-[#241a06]">
+                  <span
+                    className="absolute right-1 bottom-1 rounded-sm border border-hairline bg-ground px-1 py-0.5 font-mono text-[9px] font-bold"
+                    style={{ color: RARITY_ACCENT[card.rarity] }}
+                  >
                     ×{exemplars.length}
                   </span>
                 ) : null}
               </div>
-              <p className="mt-1 truncate text-xs text-ink-dim">{card.name}</p>
+              {exemplars.length === 0 ? (
+                // Locked cards render an empty, label-less case — this is
+                // the only place their name is visible to a sighted user.
+                // An owned card already carries its name on the slab's own
+                // label, so repeating it here would just be a caption under
+                // a caption.
+                <p className="mt-1 truncate text-xs text-ink-dim">{card.name}</p>
+              ) : null}
             </button>
           );
         })}
