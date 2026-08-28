@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { dotCardClient } from "../../api/client";
 import { CardArt } from "../../shared/components/CardArt";
 import { Button } from "../../components/ui/button";
+import { PACK_COVER_URL } from "../../shared/assets";
 import { pullMachine, type PackSize } from "./pullMachine";
 
 const SIZE_OPTIONS: { size: PackSize; cost: number }[] = [
@@ -55,8 +56,8 @@ export function PullReveal() {
       <h1 className="mb-6 text-center font-serif text-xl font-semibold text-ink">Abrir Pacote</h1>
 
       {state.matches("idle") ? (
-        <div className="flex flex-col gap-4">
-          <div>
+        <div className="flex flex-col items-center gap-6">
+          <div className="w-full">
             <label className="mb-1 block text-xs font-semibold tracking-wide text-ink-faint uppercase">
               Coleção
             </label>
@@ -73,7 +74,7 @@ export function PullReveal() {
             </select>
           </div>
 
-          <div>
+          <div className="w-full">
             <label className="mb-1 block text-xs font-semibold tracking-wide text-ink-faint uppercase">
               Tamanho do pacote
             </label>
@@ -92,13 +93,34 @@ export function PullReveal() {
             </div>
           </div>
 
-          <Button
+          <button
             type="button"
+            aria-label="Abrir pacote"
             disabled={collectionId === null}
             onClick={() => collectionId !== null && send({ type: "OPEN", collectionId, size })}
+            className="group w-56 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Abrir pacote
-          </Button>
+            <div className="relative aspect-[2/3] overflow-hidden rounded-2xl shadow-[0_0_44px_-6px_color-mix(in_srgb,var(--color-legendary)_45%,transparent)] transition-transform duration-200 ease-out group-hover:scale-[1.03] group-active:scale-[0.97]">
+              <img
+                src={PACK_COVER_URL}
+                alt="Pacote de cartas"
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/75 via-black/10 to-transparent px-3 pt-3 pb-8">
+                <p className="text-center font-serif text-base font-semibold tracking-wide text-legendary-soft">
+                  DotCard
+                </p>
+              </div>
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent px-3 pt-8 pb-3">
+                <p className="text-center text-sm font-semibold text-ink">
+                  {size} carta{size > 1 ? "s" : ""} · {SIZE_OPTIONS.find((o) => o.size === size)?.cost} DP
+                </p>
+              </div>
+            </div>
+          </button>
+          <p className="-mt-3 text-xs tracking-wide text-ink-faint uppercase">
+            Toque no pacote para abrir
+          </p>
         </div>
       ) : null}
 
