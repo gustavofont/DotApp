@@ -7,3 +7,11 @@ export async function loginAsOrfeu(page: Page): Promise<void> {
   await page.getByRole("button", { name: "Entrar" }).click();
   await page.waitForURL("/");
 }
+
+export async function loginAsAmiga(page: Page): Promise<void> {
+  await page.goto("/login");
+  await page.getByLabel("Email").fill("amiga@email.com");
+  await page.getByLabel("Senha").fill("Amiga123!");
+  await page.getByRole("button", { name: "Entrar" }).click();
+  await page.waitForURL("/");
+}

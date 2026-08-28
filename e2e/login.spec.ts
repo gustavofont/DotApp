@@ -9,7 +9,9 @@ test("logs in against the real AuthForge and shows the real profile on Home", as
 
   await expect(page).toHaveURL("http://localhost:5173/");
   await expect(page.getByText("Orfeu")).toBeVisible();
-  await expect(page.getByText("FP8D2LTH")).toBeVisible();
+  // The friend code itself is rotatable (see friends.spec.ts) and so isn't
+  // stable across runs — just assert the real 8-char code renders.
+  await expect(page.getByText(/^[A-Z0-9]{8}$/)).toBeVisible();
 
   // Reload — the refresh token in localStorage should keep the session
   // alive instead of bouncing back to /login.
