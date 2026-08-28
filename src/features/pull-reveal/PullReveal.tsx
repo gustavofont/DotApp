@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { dotCardClient } from "../../api/client";
 import { CardArt } from "../../shared/components/CardArt";
 import { Button } from "../../components/ui/button";
-import { PACK_COVER_URL } from "../../shared/assets";
+import { DEFAULT_PACK_COVER_URL, getPackCoverUrl } from "../../shared/assets";
 import { pullMachine, type PackSize } from "./pullMachine";
 
 const SIZE_OPTIONS: { size: PackSize; cost: number }[] = [
@@ -13,6 +13,14 @@ const SIZE_OPTIONS: { size: PackSize; cost: number }[] = [
   { size: 5, cost: 5 },
   { size: 10, cost: 10 },
 ];
+
+// A collection without its own uploaded cover falls back to the generic one.
+function handlePackCoverError(event: React.SyntheticEvent<HTMLImageElement>): void {
+  const img = event.currentTarget;
+  if (img.src !== DEFAULT_PACK_COVER_URL) {
+    img.src = DEFAULT_PACK_COVER_URL;
+  }
+}
 
 export function PullReveal() {
   const [state, send] = useMachine(pullMachine);
@@ -102,7 +110,8 @@ export function PullReveal() {
           >
             <div className="relative aspect-[2/3] overflow-hidden rounded-2xl shadow-[0_0_44px_-6px_color-mix(in_srgb,var(--color-legendary)_45%,transparent)] transition-transform duration-200 ease-out group-hover:scale-[1.03] group-active:scale-[0.97]">
               <img
-                src={PACK_COVER_URL}
+                src={getPackCoverUrl(collectionId)}
+                onError={handlePackCoverError}
                 alt="Pacote de cartas"
                 className="h-full w-full object-cover"
               />
@@ -135,7 +144,12 @@ export function PullReveal() {
               }}
             />
             <div className="pack-shake relative aspect-[2/3] overflow-hidden rounded-2xl shadow-[0_0_60px_-4px_color-mix(in_srgb,var(--color-legendary)_60%,transparent)]">
-              <img src={PACK_COVER_URL} alt="" className="h-full w-full object-cover" />
+              <img
+                src={getPackCoverUrl(collectionId)}
+                onError={handlePackCoverError}
+                alt=""
+                className="h-full w-full object-cover"
+              />
               <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/75 via-black/10 to-transparent px-3 pt-3 pb-8">
                 <p className="text-center font-serif text-base font-semibold tracking-wide text-legendary-soft">
                   DotCard
