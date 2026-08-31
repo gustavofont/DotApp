@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dotCardClient } from "../../api/client";
 import { Button } from "../../components/ui/button";
 import { errorMessage } from "../../shared/apiError";
 
 export function Friends() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [friendCode, setFriendCode] = useState("");
   const [inviteError, setInviteError] = useState<string | null>(null);
@@ -44,7 +46,7 @@ export function Friends() {
       invalidateFriends();
     },
     onError: (error) => {
-      setInviteError(errorMessage(error, "Não foi possível enviar o convite."));
+      setInviteError(errorMessage(error, t("friends.inviteError")));
     },
   });
 
@@ -98,12 +100,12 @@ export function Friends() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-10">
-      <h1 className="mb-6 font-serif text-xl font-semibold text-ink">Amigos</h1>
+      <h1 className="mb-6 font-serif text-xl font-semibold text-ink">{t("friends.title")}</h1>
 
       <div className="mb-6 rounded-2xl border border-hairline bg-surface p-5">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <p className="text-xs tracking-wide text-ink-faint uppercase">Seu código</p>
+            <p className="text-xs tracking-wide text-ink-faint uppercase">{t("friends.yourCode")}</p>
             <p className="font-serif text-lg text-ink">{meQuery.data?.friendCode ?? "…"}</p>
           </div>
           <Button
@@ -113,13 +115,13 @@ export function Friends() {
             disabled={rotateMutation.isPending}
             onClick={() => rotateMutation.mutate()}
           >
-            {rotateMutation.isPending ? "Girando…" : "Rotacionar"}
+            {rotateMutation.isPending ? t("friends.rotating") : t("friends.rotate")}
           </Button>
         </div>
 
         <form onSubmit={handleInviteSubmit} className="flex gap-2">
           <input
-            aria-label="Código de amigo"
+            aria-label={t("friends.codeInputAria")}
             placeholder="K7X4M2QP"
             value={friendCode}
             onChange={(event) => setFriendCode(event.target.value.toUpperCase())}
@@ -127,21 +129,21 @@ export function Friends() {
             className="w-full rounded-lg border border-hairline bg-surface-2 px-3 py-2 text-sm tracking-widest text-ink uppercase outline-none focus-visible:border-legendary"
           />
           <Button type="submit" disabled={inviteMutation.isPending || !friendCode.trim()}>
-            Convidar
+            {t("friends.invite")}
           </Button>
         </form>
         {inviteError ? <p className="mt-2 text-sm text-destructive">{inviteError}</p> : null}
       </div>
 
-      {friendsQuery.isLoading ? <p className="text-ink-dim">Carregando…</p> : null}
+      {friendsQuery.isLoading ? <p className="text-ink-dim">{t("common.loading")}</p> : null}
       {friendsQuery.error ? (
-        <p className="text-destructive">Não foi possível carregar seus amigos.</p>
+        <p className="text-destructive">{t("friends.loadError")}</p>
       ) : null}
 
       {incoming.length > 0 ? (
         <section className="mb-6">
           <h2 className="mb-2 text-xs font-semibold tracking-wide text-ink-faint uppercase">
-            Convites recebidos
+            {t("friends.incoming")}
           </h2>
           <div className="flex flex-col gap-2">
             {incoming.map((invite) => (
@@ -157,7 +159,7 @@ export function Friends() {
                     disabled={acceptMutation.isPending}
                     onClick={() => acceptMutation.mutate(invite.userId)}
                   >
-                    Aceitar
+                    {t("friends.accept")}
                   </Button>
                   <Button
                     type="button"
@@ -166,7 +168,7 @@ export function Friends() {
                     disabled={declineMutation.isPending}
                     onClick={() => declineMutation.mutate(invite.userId)}
                   >
-                    Recusar
+                    {t("friends.decline")}
                   </Button>
                 </div>
               </div>
@@ -178,7 +180,7 @@ export function Friends() {
       {outgoing.length > 0 ? (
         <section className="mb-6">
           <h2 className="mb-2 text-xs font-semibold tracking-wide text-ink-faint uppercase">
-            Convites enviados
+            {t("friends.outgoing")}
           </h2>
           <div className="flex flex-col gap-2">
             {outgoing.map((invite) => (
@@ -194,7 +196,7 @@ export function Friends() {
                   disabled={declineMutation.isPending}
                   onClick={() => declineMutation.mutate(invite.userId)}
                 >
-                  Cancelar
+                  {t("friends.cancelInvite")}
                 </Button>
               </div>
             ))}
@@ -204,10 +206,10 @@ export function Friends() {
 
       <section>
         <h2 className="mb-2 text-xs font-semibold tracking-wide text-ink-faint uppercase">
-          Seus amigos
+          {t("friends.yours")}
         </h2>
         {friendsQuery.data && friends.length === 0 ? (
-          <p className="text-sm text-ink-faint">Nenhum amigo ainda — convide alguém acima.</p>
+          <p className="text-sm text-ink-faint">{t("friends.empty")}</p>
         ) : null}
         <div className="flex flex-col gap-2">
           {friends.map((friend) => (
@@ -223,7 +225,7 @@ export function Friends() {
                 disabled={removeMutation.isPending}
                 onClick={() => removeMutation.mutate(friend.userId)}
               >
-                Desfazer
+                {t("friends.remove")}
               </Button>
             </div>
           ))}
