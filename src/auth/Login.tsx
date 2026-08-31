@@ -1,23 +1,26 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { toast } from "sonner";
 import { useAuth } from "./AuthContext";
 
-function loginErrorMessage(err: unknown): string {
+function loginErrorMessage(err: unknown, t: TFunction): string {
   const status = (err as { status?: number } | undefined)?.status;
   if (status === 429) {
-    return "Muitas tentativas de login. Aguarde cerca de 1 minuto e tente de novo.";
+    return t("login.errors.throttled");
   }
   if (status === 403) {
-    return "Conta bloqueada ou inativa.";
+    return t("login.errors.forbidden");
   }
   if (status === 401 || status === 400) {
-    return "Email ou senha inválidos.";
+    return t("login.errors.invalidCredentials");
   }
-  return "Não foi possível entrar agora. Tente novamente em instantes.";
+  return t("login.errors.generic");
 }
 
 export function Login() {
+  const { t } = useTranslation();
   const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -31,7 +34,7 @@ export function Login() {
       await login(email, password);
       void navigate("/", { replace: true });
     } catch (err) {
-      toast.error(loginErrorMessage(err));
+      toast.error(loginErrorMessage(err, t));
     } finally {
       setIsSubmitting(false);
     }
@@ -51,7 +54,7 @@ export function Login() {
           htmlFor="email"
           className="mb-1 block text-xs font-semibold tracking-wide text-ink-faint uppercase"
         >
-          Email
+          {t("login.email")}
         </label>
         <input
           id="email"
@@ -67,7 +70,7 @@ export function Login() {
           htmlFor="password"
           className="mb-1 block text-xs font-semibold tracking-wide text-ink-faint uppercase"
         >
-          Senha
+          {t("login.password")}
         </label>
         <input
           id="password"
@@ -84,7 +87,7 @@ export function Login() {
           disabled={isSubmitting}
           className="w-full rounded-lg bg-legendary py-2.5 font-semibold text-[#241a06] transition-opacity disabled:opacity-50"
         >
-          {isSubmitting ? "Entrando…" : "Entrar"}
+          {isSubmitting ? t("login.submitting") : t("login.submit")}
         </button>
       </form>
     </div>
