@@ -96,6 +96,7 @@
     "collection": "Collection",
     "packSize": "Pack size",
     "openPackAria": "Open pack",
+    "packCoverAlt": "Card pack",
     "tapToOpen": "Tap the pack to open it",
     "opening": "Opening…",
     "revealNextAria": "Reveal next card",

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMachine } from "@xstate/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -23,6 +24,7 @@ function handlePackCoverError(event: React.SyntheticEvent<HTMLImageElement>): vo
 }
 
 export function PullReveal() {
+  const { t } = useTranslation();
   const [state, send] = useMachine(pullMachine);
   const queryClient = useQueryClient();
 
@@ -61,7 +63,7 @@ export function PullReveal() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-10">
-      <h1 className="mb-6 text-center font-serif text-xl font-semibold text-ink">Abrir Pacote</h1>
+      <h1 className="mb-6 text-center font-serif text-xl font-semibold text-ink">{t("pull.title")}</h1>
 
       {state.matches("idle") ? (
         <div className="flex flex-col items-center gap-6">
@@ -70,7 +72,7 @@ export function PullReveal() {
               htmlFor="pull-collection"
               className="mb-1 block text-xs font-semibold tracking-wide text-ink-faint uppercase"
             >
-              Coleção
+              {t("pull.collection")}
             </label>
             <select
               id="pull-collection"
@@ -88,7 +90,7 @@ export function PullReveal() {
 
           <div className="w-full">
             <label className="mb-1 block text-xs font-semibold tracking-wide text-ink-faint uppercase">
-              Tamanho do pacote
+              {t("pull.packSize")}
             </label>
             <div className="flex gap-2">
               {SIZE_OPTIONS.map((option) => (
@@ -107,7 +109,7 @@ export function PullReveal() {
 
           <button
             type="button"
-            aria-label="Abrir pacote"
+            aria-label={t("pull.openPackAria")}
             disabled={collectionId === null}
             onClick={() => collectionId !== null && send({ type: "OPEN", collectionId, size })}
             className="group w-56 disabled:cursor-not-allowed disabled:opacity-50"
@@ -116,7 +118,7 @@ export function PullReveal() {
               <img
                 src={getPackCoverUrl(collectionId)}
                 onError={handlePackCoverError}
-                alt="Pacote de cartas"
+                alt={t("pull.packCoverAlt")}
                 className="h-full w-full object-cover"
               />
               <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/75 via-black/10 to-transparent px-3 pt-3 pb-8">
@@ -126,13 +128,14 @@ export function PullReveal() {
               </div>
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent px-3 pt-8 pb-3">
                 <p className="text-center text-sm font-semibold text-ink">
-                  {size} carta{size > 1 ? "s" : ""} · {SIZE_OPTIONS.find((o) => o.size === size)?.cost} DP
+                  {t("pull.cardCount", { count: size })} ·{" "}
+                  {SIZE_OPTIONS.find((o) => o.size === size)?.cost} DP
                 </p>
               </div>
             </div>
           </button>
           <p className="-mt-3 text-xs tracking-wide text-ink-faint uppercase">
-            Toque no pacote para abrir
+            {t("pull.tapToOpen")}
           </p>
         </div>
       ) : null}
@@ -161,7 +164,7 @@ export function PullReveal() {
               </div>
             </div>
           </div>
-          <p className="animate-pulse text-sm text-ink-dim">Abrindo…</p>
+          <p className="animate-pulse text-sm text-ink-dim">{t("pull.opening")}</p>
         </div>
       ) : null}
 
@@ -179,7 +182,7 @@ export function PullReveal() {
             ) : null}
             <button
               type="button"
-              aria-label="Revelar próxima carta"
+              aria-label={t("pull.revealNextAria")}
               onClick={() => send({ type: "REVEAL_NEXT" })}
               className="relative block w-full cursor-pointer"
             >
@@ -194,7 +197,7 @@ export function PullReveal() {
           </div>
 
           {isLegendary ? (
-            <p className="font-serif text-sm font-semibold text-legendary">Lendária!</p>
+            <p className="font-serif text-sm font-semibold text-legendary">{t("pull.legendary")}</p>
           ) : null}
 
           <div className="flex gap-1.5">
@@ -209,14 +212,17 @@ export function PullReveal() {
             ))}
           </div>
           <p className="text-xs text-ink-faint uppercase">
-            {state.context.currentIndex + 1} de {state.context.cards.length} — toque para continuar
+            {t("pull.progress", {
+              current: state.context.currentIndex + 1,
+              total: state.context.cards.length,
+            })}
           </p>
         </div>
       ) : null}
 
       {state.matches("done") ? (
         <div className="flex flex-col gap-4 py-6">
-          <p className="text-center text-ink-dim">Pacote aberto!</p>
+          <p className="text-center text-ink-dim">{t("pull.done")}</p>
           <div className="flex flex-col gap-2">
             {state.context.cards.map((c) => (
               <div
@@ -224,15 +230,15 @@ export function PullReveal() {
                 className="flex justify-between rounded-lg border border-hairline bg-surface px-3 py-2 text-sm"
               >
                 <span className="text-ink">{c.card.name}</span>
-                <span className="text-ink-faint">{c.card.rarity}</span>
+                <span className="text-ink-faint">{t(`common.rarity.${c.card.rarity}`)}</span>
               </div>
             ))}
           </div>
           <Button type="button" onClick={() => send({ type: "RESET" })}>
-            Abrir outro pacote
+            {t("pull.openAnother")}
           </Button>
           <Link to="/catalog" className="text-center text-sm text-ink-dim hover:text-ink">
-            Ver catálogo
+            {t("pull.viewCatalog")}
           </Link>
         </div>
       ) : null}
@@ -241,11 +247,11 @@ export function PullReveal() {
         <div className="flex flex-col gap-4 py-6 text-center">
           <p className="text-destructive">
             {state.context.error === "insufficient_balance"
-              ? "Saldo insuficiente — resgate sua recompensa diária primeiro."
-              : "Não foi possível abrir o pacote."}
+              ? t("pull.insufficientBalance")
+              : t("pull.genericError")}
           </p>
           <Button type="button" onClick={() => send({ type: "RESET" })}>
-            Tentar de novo
+            {t("pull.tryAgain")}
           </Button>
         </div>
       ) : null}
