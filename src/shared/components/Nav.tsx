@@ -1,6 +1,8 @@
 import { Link, NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../auth/AuthContext";
 import { Button } from "../../components/ui/button";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import { cn } from "@/lib/utils";
 
 // "Abrir Pacote" and "Trocas" are deliberately not here — they're actions
@@ -8,12 +10,13 @@ import { cn } from "@/lib/utils";
 // proposing a trade are things you *do*, not places you *browse*). Keeps
 // the sidebar to actual browsing destinations.
 const LINKS = [
-  { to: "/", label: "Home" },
-  { to: "/catalog", label: "Catálogo" },
-  { to: "/friends", label: "Amigos" },
+  { to: "/", labelKey: "nav.home" },
+  { to: "/catalog", labelKey: "nav.catalog" },
+  { to: "/friends", labelKey: "nav.friends" },
 ] as const;
 
 export function Nav() {
+  const { t } = useTranslation();
   const { logout } = useAuth();
 
   return (
@@ -40,12 +43,13 @@ export function Nav() {
               )
             }
           >
-            {link.label}
+            {t(link.labelKey)}
           </NavLink>
         ))}
       </nav>
 
-      <div className="shrink-0 sm:w-full sm:border-t sm:border-hairline sm:p-3">
+      <div className="flex shrink-0 items-center gap-2 sm:w-full sm:flex-col sm:items-stretch sm:gap-3 sm:border-t sm:border-hairline sm:p-3">
+        <LanguageSwitcher />
         <Button
           type="button"
           variant="ghost"
@@ -53,7 +57,7 @@ export function Nav() {
           className="sm:w-full sm:justify-start"
           onClick={() => void logout()}
         >
-          Sair
+          {t("nav.logout")}
         </Button>
       </div>
     </aside>
