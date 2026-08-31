@@ -18,10 +18,12 @@ function renderNav(initialPath: string) {
 }
 
 describe("Nav", () => {
-  it("renders a link to every protected screen", () => {
+  it("renders a link to every browsing destination", () => {
     renderNav("/");
 
-    for (const label of ["Home", "Catálogo", "Abrir Pacote", "Amigos", "Trocas"]) {
+    // "Abrir Pacote" and "Trocas" are launched from Home, not standing
+    // sidebar destinations — deliberately not asserted here.
+    for (const label of ["Home", "Catálogo", "Amigos"]) {
       expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
     }
   });
