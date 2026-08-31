@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useMachine } from "@xstate/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { dotCardClient } from "../../api/client";
@@ -11,19 +12,12 @@ import type { components } from "../../api/dotcard.types";
 
 type GeneratedCardResponseDto = components["schemas"]["GeneratedCardResponseDto"];
 
-const STATUS_LABEL: Record<Trade["status"], string> = {
-  AWAITING_COUNTERPART: "Aguardando carta do outro",
-  AWAITING_CONFIRMATION: "Aguardando sua confirmação",
-  ACCEPTED: "Concluída",
-  CANCELLED: "Cancelada",
-  EXPIRED: "Expirada",
-};
-
 function isActive(status: Trade["status"]): boolean {
   return status === "AWAITING_COUNTERPART" || status === "AWAITING_CONFIRMATION";
 }
 
 export function Trades() {
+  const { t } = useTranslation();
   const myUserId = getCurrentUserId();
   const queryClient = useQueryClient();
   const [state, send] = useMachine(tradeMachine);
@@ -75,7 +69,7 @@ export function Trades() {
     const isProposer = trade.fromUser === myUserId;
     const isRecipient = trade.toUser === myUserId;
     const otherUserId = isProposer ? trade.toUser : trade.fromUser;
-    const otherName = friendsById.get(otherUserId)?.displayName ?? "Jogador";
+    const otherName = friendsById.get(otherUserId)?.displayName ?? t("trades.defaultPlayerName");
     const busy =
       state.matches("submittingCounterpart") ||
       state.matches("confirming") ||
@@ -88,14 +82,14 @@ export function Trades() {
           onClick={closeDetail}
           className="mb-6 text-sm text-ink-dim hover:text-ink"
         >
-          ← Voltar
+          ← {t("common.back")}
         </button>
 
         <p className="mb-1 text-center text-xs tracking-wide text-ink-faint uppercase">
-          Troca com {otherName}
+          {t("trades.tradeWith", { name: otherName })}
         </p>
         <p className="mb-6 text-center font-serif text-lg text-ink">
-          {STATUS_LABEL[trade.status]}
+          {t(`trades.status.${trade.status}`)}
         </p>
 
         <div className="mb-6 grid grid-cols-2 gap-4">
@@ -104,19 +98,21 @@ export function Trades() {
             <TradeCardSlot exemplar={trade.requestedCard} />
           ) : (
             <div className="flex aspect-[3/4.2] items-center justify-center rounded-2xl border border-dashed border-hairline text-center text-xs text-ink-faint">
-              Aguardando escolha
+              {t("trades.awaitingChoice")}
             </div>
           )}
         </div>
 
         {state.context.error ? (
-          <p className="mb-4 text-center text-sm text-destructive">{state.context.error}</p>
+          <p className="mb-4 text-center text-sm text-destructive">
+            {t(`trades.errors.${state.context.error}`)}
+          </p>
         ) : null}
 
         {trade.status === "AWAITING_COUNTERPART" && isRecipient ? (
           <div className="mb-4">
             <p className="mb-2 text-xs font-semibold tracking-wide text-ink-faint uppercase">
-              Escolha sua carta
+              {t("trades.chooseYourCard")}
             </p>
             <CardPicker
               cards={myCards}
@@ -132,7 +128,7 @@ export function Trades() {
             disabled={busy}
             onClick={() => send({ type: "CONFIRM" })}
           >
-            Confirmar troca
+            {t("trades.confirm")}
           </Button>
         ) : null}
 
@@ -144,13 +140,13 @@ export function Trades() {
             disabled={busy}
             onClick={() => send({ type: "CANCEL" })}
           >
-            Cancelar
+            {t("trades.cancel")}
           </Button>
         ) : null}
 
         {!isActive(trade.status) ? (
           <Button type="button" variant="outline" className="w-full" onClick={closeDetail}>
-            Fechar
+            {t("trades.close")}
           </Button>
         ) : null}
       </div>
@@ -166,16 +162,16 @@ export function Trades() {
           onClick={() => setCreating(false)}
           className="mb-6 text-sm text-ink-dim hover:text-ink"
         >
-          ← Voltar
+          ← {t("common.back")}
         </button>
 
-        <h1 className="mb-6 font-serif text-xl font-semibold text-ink">Nova troca</h1>
+        <h1 className="mb-6 font-serif text-xl font-semibold text-ink">{t("trades.new")}</h1>
 
         <label
           htmlFor="trade-friend"
           className="mb-1 block text-xs font-semibold tracking-wide text-ink-faint uppercase"
         >
-          Amigo
+          {t("trades.friend")}
         </label>
         <select
           id="trade-friend"
@@ -183,7 +179,7 @@ export function Trades() {
           onChange={(event) => setToUserId(event.target.value)}
           className="mb-4 w-full rounded-lg border border-hairline bg-surface-2 px-3 py-2 text-ink"
         >
-          <option value="">Escolha um amigo</option>
+          <option value="">{t("trades.chooseFriend")}</option>
           {(friendsQuery.data?.friends ?? []).map((friend) => (
             <option key={friend.userId} value={friend.userId}>
               {friend.displayName}
@@ -192,10 +188,12 @@ export function Trades() {
         </select>
 
         <p className="mb-2 text-xs font-semibold tracking-wide text-ink-faint uppercase">
-          Sua carta
+          {t("trades.yourCard")}
         </p>
         {state.context.error ? (
-          <p className="mb-2 text-sm text-destructive">{state.context.error}</p>
+          <p className="mb-2 text-sm text-destructive">
+            {t(`trades.errors.${state.context.error}`)}
+          </p>
         ) : null}
         <CardPicker
           cards={myCards}
@@ -215,25 +213,25 @@ export function Trades() {
   return (
     <div className="mx-auto max-w-md px-4 py-10">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-serif text-xl font-semibold text-ink">Trocas</h1>
+        <h1 className="font-serif text-xl font-semibold text-ink">{t("trades.title")}</h1>
         <Button type="button" size="sm" onClick={() => setCreating(true)}>
-          Nova troca
+          {t("trades.new")}
         </Button>
       </div>
 
-      {tradesQuery.isLoading ? <p className="text-ink-dim">Carregando…</p> : null}
+      {tradesQuery.isLoading ? <p className="text-ink-dim">{t("common.loading")}</p> : null}
       {tradesQuery.error ? (
-        <p className="text-destructive">Não foi possível carregar suas trocas.</p>
+        <p className="text-destructive">{t("trades.loadError")}</p>
       ) : null}
       {tradesQuery.data && trades.length === 0 ? (
-        <p className="text-sm text-ink-faint">Nenhuma troca ainda.</p>
+        <p className="text-sm text-ink-faint">{t("trades.empty")}</p>
       ) : null}
 
       <div className="flex flex-col gap-2">
         {trades.map((trade) => {
           const isProposer = trade.fromUser === myUserId;
           const otherUserId = isProposer ? trade.toUser : trade.fromUser;
-          const otherName = friendsById.get(otherUserId)?.displayName ?? "Jogador";
+          const otherName = friendsById.get(otherUserId)?.displayName ?? t("trades.defaultPlayerName");
           return (
             <button
               key={trade.id}
@@ -245,7 +243,7 @@ export function Trades() {
                 <p className="text-sm text-ink">{otherName}</p>
                 <p className="text-xs text-ink-faint">{trade.offeredCard.card.name}</p>
               </div>
-              <span className="text-xs text-ink-dim">{STATUS_LABEL[trade.status]}</span>
+              <span className="text-xs text-ink-dim">{t(`trades.status.${trade.status}`)}</span>
             </button>
           );
         })}

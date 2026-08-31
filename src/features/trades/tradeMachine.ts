@@ -10,9 +10,16 @@ function isActive(trade: Trade): boolean {
   return trade.status === "AWAITING_COUNTERPART" || trade.status === "AWAITING_CONFIRMATION";
 }
 
+export type TradeErrorCode =
+  | "loadFailed"
+  | "createFailed"
+  | "counterpartFailed"
+  | "confirmFailed"
+  | "cancelFailed";
+
 interface TradeContext {
   trade: Trade | null;
-  error: string | null;
+  error: TradeErrorCode | null;
 }
 
 type TradeEvent =
@@ -108,7 +115,7 @@ export const tradeMachine = setup({
         },
         onError: {
           target: "error",
-          actions: assign({ error: "Não foi possível carregar a troca." }),
+          actions: assign({ error: "loadFailed" as const }),
         },
       },
     },
@@ -125,7 +132,7 @@ export const tradeMachine = setup({
         },
         onError: {
           target: "error",
-          actions: assign({ error: "Não foi possível propor a troca." }),
+          actions: assign({ error: "createFailed" as const }),
         },
       },
     },
@@ -172,7 +179,7 @@ export const tradeMachine = setup({
         },
         onError: {
           target: "open",
-          actions: assign({ error: "Não foi possível confirmar sua carta." }),
+          actions: assign({ error: "counterpartFailed" as const }),
         },
       },
     },
@@ -186,7 +193,7 @@ export const tradeMachine = setup({
         },
         onError: {
           target: "open",
-          actions: assign({ error: "Não foi possível confirmar a troca." }),
+          actions: assign({ error: "confirmFailed" as const }),
         },
       },
     },
@@ -200,7 +207,7 @@ export const tradeMachine = setup({
         },
         onError: {
           target: "open",
-          actions: assign({ error: "Não foi possível cancelar a troca." }),
+          actions: assign({ error: "cancelFailed" as const }),
         },
       },
     },
