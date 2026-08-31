@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { dotCardClient } from "../../api/client";
 import { CardArt } from "../../shared/components/CardArt";
@@ -16,6 +17,7 @@ const RARITIES: Rarity[] = ["COMMON", "RARE", "EPIC", "LEGENDARY"];
 const TYPES: CardType[] = ["CREATURE", "LAND", "SORCERY", "ARTIFACT"];
 
 export function Catalog() {
+  const { t } = useTranslation();
   const [rarityFilter, setRarityFilter] = useState<Rarity | null>(null);
   const [typeFilter, setTypeFilter] = useState<CardType | null>(null);
   const [selectedCard, setSelectedCard] = useState<CardResponseDto | null>(null);
@@ -64,7 +66,7 @@ export function Catalog() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="font-serif text-xl font-semibold text-ink">Catálogo</h1>
+        <h1 className="font-serif text-xl font-semibold text-ink">{t("catalog.title")}</h1>
         {cardsQuery.data ? (
           <span className="text-sm text-ink-faint">
             {exemplarsByCardId.size} / {cardsQuery.data.total}
@@ -79,7 +81,7 @@ export function Catalog() {
           variant={rarityFilter === null ? "default" : "outline"}
           onClick={() => setRarityFilter(null)}
         >
-          Todas
+          {t("catalog.all")}
         </Button>
         {RARITIES.map((rarity) => (
           <Button
@@ -89,7 +91,7 @@ export function Catalog() {
             variant={rarityFilter === rarity ? "default" : "outline"}
             onClick={() => setRarityFilter(rarityFilter === rarity ? null : rarity)}
           >
-            {rarity}
+            {t(`common.rarity.${rarity}`)}
           </Button>
         ))}
         <span className="mx-1 self-center text-hairline">|</span>
@@ -101,13 +103,13 @@ export function Catalog() {
             variant={typeFilter === type ? "default" : "outline"}
             onClick={() => setTypeFilter(typeFilter === type ? null : type)}
           >
-            {type}
+            {t(`common.cardType.${type}`)}
           </Button>
         ))}
       </div>
 
-      {isLoading ? <p className="text-ink-dim">Carregando…</p> : null}
-      {error ? <p className="text-destructive">Não foi possível carregar o catálogo.</p> : null}
+      {isLoading ? <p className="text-ink-dim">{t("common.loading")}</p> : null}
+      {error ? <p className="text-destructive">{t("catalog.loadError")}</p> : null}
 
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
         {filteredCards.map((card) => {

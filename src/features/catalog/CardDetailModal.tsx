@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "../../components/ui/dialog";
 import { CardArt } from "../../shared/components/CardArt";
 import { gradeFromFloat } from "../../shared/cardWear";
@@ -38,6 +39,7 @@ export interface CardDetailModalProps {
 }
 
 export function CardDetailModal({ card, exemplars, onOpenChange }: CardDetailModalProps) {
+  const { t } = useTranslation();
   const owned = exemplars.length > 0;
   // Lowest float = best condition — same convention as the grid badge.
   const best = owned ? [...exemplars].sort((a, b) => a.floatValue - b.floatValue)[0] : null;
@@ -48,7 +50,7 @@ export function CardDetailModal({ card, exemplars, onOpenChange }: CardDetailMod
         <DialogContent className="max-w-xs">
           <DialogTitle className="font-serif text-lg">{card.name}</DialogTitle>
           <DialogDescription>
-            {card.type} · {card.rarity}
+            {t(`common.cardType.${card.type}`)} · {t(`common.rarity.${card.rarity}`)}
           </DialogDescription>
 
           <div className="mx-auto w-40">
@@ -65,7 +67,7 @@ export function CardDetailModal({ card, exemplars, onOpenChange }: CardDetailMod
           {owned ? (
             <ExemplarList exemplars={exemplars} />
           ) : (
-            <p className="text-center text-sm text-ink-faint">Ainda não obtida.</p>
+            <p className="text-center text-sm text-ink-faint">{t("cardDetail.notObtained")}</p>
           )}
         </DialogContent>
       ) : null}

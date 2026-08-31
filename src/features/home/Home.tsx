@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowLeftRight, PackageOpen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dotCardClient } from "../../api/client";
 import { Button } from "../../components/ui/button";
@@ -7,6 +8,7 @@ import { CardArt } from "../../shared/components/CardArt";
 import { errorMessage } from "../../shared/apiError";
 
 export function Home() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const { data, isLoading, error } = useQuery({
@@ -45,8 +47,8 @@ export function Home() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      {isLoading ? <p className="text-ink-dim">Carregando…</p> : null}
-      {error ? <p className="text-destructive">Não foi possível carregar seu perfil.</p> : null}
+      {isLoading ? <p className="text-ink-dim">{t("common.loading")}</p> : null}
+      {error ? <p className="text-destructive">{t("home.profileError")}</p> : null}
 
       {data ? (
         <>
@@ -61,7 +63,7 @@ export function Home() {
                 </p>
               </div>
               <div className="shrink-0 text-right">
-                <p className="text-xs tracking-wide text-ink-faint uppercase">Saldo</p>
+                <p className="text-xs tracking-wide text-ink-faint uppercase">{t("home.balance")}</p>
                 <p className="font-serif text-2xl font-semibold text-ink">
                   {data.balance} <span className="text-sm font-sans text-ink-dim">DP</span>
                 </p>
@@ -77,16 +79,16 @@ export function Home() {
                   disabled={claimMutation.isPending}
                   onClick={() => claimMutation.mutate()}
                 >
-                  {claimMutation.isPending ? "Resgatando…" : "Resgatar recompensa diária"}
+                  {claimMutation.isPending ? t("home.claiming") : t("home.claim")}
                 </Button>
               ) : (
                 <p className="text-center text-sm text-ink-faint">
-                  Recompensa diária já resgatada hoje
+                  {t("home.alreadyClaimed")}
                 </p>
               )}
               {claimMutation.error ? (
                 <p className="mt-2 text-center text-sm text-destructive">
-                  {errorMessage(claimMutation.error, "Não foi possível resgatar agora.")}
+                  {errorMessage(claimMutation.error, t("home.claimError"))}
                 </p>
               ) : null}
             </div>
@@ -101,21 +103,21 @@ export function Home() {
               className="flex flex-col items-center gap-2 rounded-lg bg-legendary p-5 text-center text-[#241a06] transition-opacity hover:opacity-90"
             >
               <PackageOpen className="h-6 w-6" />
-              <span className="font-serif text-sm font-semibold">Abrir Pacote</span>
+              <span className="font-serif text-sm font-semibold">{t("home.openPack")}</span>
             </Link>
             <Link
               to="/trades"
               className="flex flex-col items-center gap-2 rounded-lg border border-hairline bg-surface p-5 text-center text-ink transition-colors hover:border-legendary/50"
             >
               <ArrowLeftRight className="h-6 w-6 text-ink-dim" />
-              <span className="font-serif text-sm font-semibold">Trocas</span>
+              <span className="font-serif text-sm font-semibold">{t("home.trades")}</span>
             </Link>
           </div>
 
           {bestCards.length > 0 ? (
             <div className="mt-6">
               <p className="mb-2 text-xs font-semibold tracking-wide text-ink-faint uppercase">
-                Melhores cartas
+                {t("home.bestCards")}
               </p>
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
                 {bestCards.map((exemplar) => (

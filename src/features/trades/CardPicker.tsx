@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { CardArt } from "../../shared/components/CardArt";
 import type { components } from "../../api/dotcard.types";
 
@@ -9,8 +10,10 @@ export interface CardPickerProps {
 }
 
 export function CardPicker({ cards, onSelect }: CardPickerProps) {
+  const { t } = useTranslation();
+
   if (cards.length === 0) {
-    return <p className="text-sm text-ink-faint">Você não tem cartas para oferecer.</p>;
+    return <p className="text-sm text-ink-faint">{t("cardPicker.empty")}</p>;
   }
 
   return (

@@ -1,4 +1,5 @@
 import { Lock } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { getWearStyle, gradeFromFloat, serialFromSeed } from "../cardWear";
 import { RARITY_ACCENT, RARITY_ACCENT_SOFT, RARITY_GLOW } from "../rarity";
@@ -42,11 +43,13 @@ export function CardArt({
   compact,
   className,
 }: CardArtProps) {
+  const { t } = useTranslation();
+
   if (locked) {
     return (
       <div
         role="img"
-        aria-label={`${name} (ainda não obtida)`}
+        aria-label={t("cardArt.notObtainedAria", { name })}
         className={cn(
           "relative flex aspect-[3/4.2] flex-col overflow-hidden rounded-lg border border-dashed border-hairline bg-surface-2",
           className,
@@ -114,7 +117,7 @@ export function CardArt({
                   className="h-2.5 w-2.5 shrink-0"
                 />
                 <span className="truncate font-mono text-[7px] tracking-wide text-ink-faint uppercase">
-                  {rarity} · {cardType}
+                  {t(`common.rarity.${rarity}`)} · {t(`common.cardType.${cardType}`)}
                 </span>
               </div>
             </div>
