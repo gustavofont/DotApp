@@ -1,0 +1,135 @@
+{
+  "common": {
+    "loading": "Carregando…",
+    "back": "Voltar",
+    "rarity": {
+      "COMMON": "COMMON",
+      "RARE": "RARE",
+      "EPIC": "EPIC",
+      "LEGENDARY": "LEGENDARY"
+    },
+    "cardType": {
+      "CREATURE": "CREATURE",
+      "LAND": "LAND",
+      "SORCERY": "SORCERY",
+      "ARTIFACT": "ARTIFACT"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "catalog": "Catálogo",
+    "friends": "Amigos",
+    "logout": "Sair"
+  },
+  "home": {
+    "balance": "Saldo",
+    "claim": "Resgatar recompensa diária",
+    "claiming": "Resgatando…",
+    "alreadyClaimed": "Recompensa diária já resgatada hoje",
+    "claimError": "Não foi possível resgatar agora.",
+    "profileError": "Não foi possível carregar seu perfil.",
+    "openPack": "Abrir Pacote",
+    "trades": "Trocas",
+    "bestCards": "Melhores cartas"
+  },
+  "catalog": {
+    "title": "Catálogo",
+    "all": "Todas",
+    "loadError": "Não foi possível carregar o catálogo."
+  },
+  "cardDetail": {
+    "notObtained": "Ainda não obtida."
+  },
+  "friends": {
+    "title": "Amigos",
+    "yourCode": "Seu código",
+    "rotate": "Rotacionar",
+    "rotating": "Girando…",
+    "codeInputAria": "Código de amigo",
+    "invite": "Convidar",
+    "inviteError": "Não foi possível enviar o convite.",
+    "loadError": "Não foi possível carregar seus amigos.",
+    "incoming": "Convites recebidos",
+    "outgoing": "Convites enviados",
+    "yours": "Seus amigos",
+    "accept": "Aceitar",
+    "decline": "Recusar",
+    "cancelInvite": "Cancelar",
+    "remove": "Desfazer",
+    "empty": "Nenhum amigo ainda — convide alguém acima."
+  },
+  "trades": {
+    "title": "Trocas",
+    "new": "Nova troca",
+    "status": {
+      "AWAITING_COUNTERPART": "Aguardando carta do outro",
+      "AWAITING_CONFIRMATION": "Aguardando sua confirmação",
+      "ACCEPTED": "Concluída",
+      "CANCELLED": "Cancelada",
+      "EXPIRED": "Expirada"
+    },
+    "tradeWith": "Troca com {{name}}",
+    "awaitingChoice": "Aguardando escolha",
+    "chooseYourCard": "Escolha sua carta",
+    "confirm": "Confirmar troca",
+    "cancel": "Cancelar",
+    "close": "Fechar",
+    "friend": "Amigo",
+    "chooseFriend": "Escolha um amigo",
+    "yourCard": "Sua carta",
+    "empty": "Nenhuma troca ainda.",
+    "loadError": "Não foi possível carregar suas trocas.",
+    "defaultPlayerName": "Jogador",
+    "errors": {
+      "loadFailed": "Não foi possível carregar a troca.",
+      "createFailed": "Não foi possível propor a troca.",
+      "counterpartFailed": "Não foi possível confirmar sua carta.",
+      "confirmFailed": "Não foi possível confirmar a troca.",
+      "cancelFailed": "Não foi possível cancelar a troca."
+    }
+  },
+  "cardPicker": {
+    "empty": "Você não tem cartas para oferecer."
+  },
+  "pull": {
+    "title": "Abrir Pacote",
+    "collection": "Coleção",
+    "packSize": "Tamanho do pacote",
+    "openPackAria": "Abrir pacote",
+    "tapToOpen": "Toque no pacote para abrir",
+    "opening": "Abrindo…",
+    "revealNextAria": "Revelar próxima carta",
+    "legendary": "Lendária!",
+    "progress": "{{current}} de {{total}} — toque para continuar",
+    "done": "Pacote aberto!",
+    "openAnother": "Abrir outro pacote",
+    "viewCatalog": "Ver catálogo",
+    "tryAgain": "Tentar de novo",
+    "insufficientBalance": "Saldo insuficiente — resgate sua recompensa diária primeiro.",
+    "genericError": "Não foi possível abrir o pacote.",
+    "cardCount_one": "{{count}} carta",
+    "cardCount_other": "{{count}} cartas"
+  },
+  "cardArt": {
+    "notObtainedAria": "{{name}} (ainda não obtida)"
+  },
+  "login": {
+    "email": "Email",
+    "password": "Senha",
+    "submit": "Entrar",
+    "submitting": "Entrando…",
+    "errors": {
+      "throttled": "Muitas tentativas de login. Aguarde cerca de 1 minuto e tente de novo.",
+      "forbidden": "Conta bloqueada ou inativa.",
+      "invalidCredentials": "Email ou senha inválidos.",
+      "generic": "Não foi possível entrar agora. Tente novamente em instantes."
+    }
+  },
+  "protectedRoute": {
+    "loading": "Carregando…"
+  },
+  "languageSwitcher": {
+    "portuguese": "PT",
+    "english": "EN"
+  }
+}

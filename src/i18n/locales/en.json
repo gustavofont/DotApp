@@ -1,0 +1,135 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "back": "Back",
+    "rarity": {
+      "COMMON": "Common",
+      "RARE": "Rare",
+      "EPIC": "Epic",
+      "LEGENDARY": "Legendary"
+    },
+    "cardType": {
+      "CREATURE": "Creature",
+      "LAND": "Land",
+      "SORCERY": "Sorcery",
+      "ARTIFACT": "Artifact"
+    }
+  },
+  "nav": {
+    "home": "Home",
+    "catalog": "Catalog",
+    "friends": "Friends",
+    "logout": "Log out"
+  },
+  "home": {
+    "balance": "Balance",
+    "claim": "Claim daily reward",
+    "claiming": "Claiming…",
+    "alreadyClaimed": "Daily reward already claimed today",
+    "claimError": "Couldn't claim right now.",
+    "profileError": "Couldn't load your profile.",
+    "openPack": "Open Pack",
+    "trades": "Trades",
+    "bestCards": "Best cards"
+  },
+  "catalog": {
+    "title": "Catalog",
+    "all": "All",
+    "loadError": "Couldn't load the catalog."
+  },
+  "cardDetail": {
+    "notObtained": "Not obtained yet."
+  },
+  "friends": {
+    "title": "Friends",
+    "yourCode": "Your code",
+    "rotate": "Rotate",
+    "rotating": "Rotating…",
+    "codeInputAria": "Friend code",
+    "invite": "Invite",
+    "inviteError": "Couldn't send the invite.",
+    "loadError": "Couldn't load your friends.",
+    "incoming": "Received invites",
+    "outgoing": "Sent invites",
+    "yours": "Your friends",
+    "accept": "Accept",
+    "decline": "Decline",
+    "cancelInvite": "Cancel",
+    "remove": "Remove",
+    "empty": "No friends yet — invite someone above."
+  },
+  "trades": {
+    "title": "Trades",
+    "new": "New trade",
+    "status": {
+      "AWAITING_COUNTERPART": "Awaiting their card",
+      "AWAITING_CONFIRMATION": "Awaiting your confirmation",
+      "ACCEPTED": "Completed",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
+    },
+    "tradeWith": "Trade with {{name}}",
+    "awaitingChoice": "Awaiting choice",
+    "chooseYourCard": "Choose your card",
+    "confirm": "Confirm trade",
+    "cancel": "Cancel",
+    "close": "Close",
+    "friend": "Friend",
+    "chooseFriend": "Choose a friend",
+    "yourCard": "Your card",
+    "empty": "No trades yet.",
+    "loadError": "Couldn't load your trades.",
+    "defaultPlayerName": "Player",
+    "errors": {
+      "loadFailed": "Couldn't load the trade.",
+      "createFailed": "Couldn't propose the trade.",
+      "counterpartFailed": "Couldn't confirm your card.",
+      "confirmFailed": "Couldn't confirm the trade.",
+      "cancelFailed": "Couldn't cancel the trade."
+    }
+  },
+  "cardPicker": {
+    "empty": "You have no cards to offer."
+  },
+  "pull": {
+    "title": "Open Pack",
+    "collection": "Collection",
+    "packSize": "Pack size",
+    "openPackAria": "Open pack",
+    "tapToOpen": "Tap the pack to open it",
+    "opening": "Opening…",
+    "revealNextAria": "Reveal next card",
+    "legendary": "Legendary!",
+    "progress": "{{current}} of {{total}} — tap to continue",
+    "done": "Pack opened!",
+    "openAnother": "Open another pack",
+    "viewCatalog": "View catalog",
+    "tryAgain": "Try again",
+    "insufficientBalance": "Insufficient balance — claim your daily reward first.",
+    "genericError": "Couldn't open the pack.",
+    "cardCount_one": "{{count}} card",
+    "cardCount_other": "{{count}} cards"
+  },
+  "cardArt": {
+    "notObtainedAria": "{{name}} (not obtained yet)"
+  },
+  "login": {
+    "email": "Email",
+    "password": "Password",
+    "submit": "Log in",
+    "submitting": "Logging in…",
+    "errors": {
+      "throttled": "Too many login attempts. Wait about 1 minute and try again.",
+      "forbidden": "Account locked or inactive.",
+      "invalidCredentials": "Invalid email or password.",
+      "generic": "Couldn't log in right now. Please try again shortly."
+    }
+  },
+  "protectedRoute": {
+    "loading": "Loading…"
+  },
+  "languageSwitcher": {
+    "portuguese": "PT",
+    "english": "EN"
+  }
+}
