@@ -44,12 +44,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function login(email: string, password: string): Promise<void> {
-    const { data, error } = await authForgeClient.POST("/auth/login", {
+    const { data, error, response } = await authForgeClient.POST("/auth/login", {
       body: { email, password },
     });
 
     if (error || !data) {
-      throw error ?? new Error("Login failed");
+      // Flat `status` (not nested under `.response`, openapi-fetch doesn't
+      // shape errors that way) so callers can tell a throttle (429) apart
+      // from a locked account (403) from bad credentials (401/400).
+      throw Object.assign({}, error, { status: response.status });
     }
 
     setAccessToken(data.accessToken);

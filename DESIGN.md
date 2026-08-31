@@ -72,6 +72,14 @@ components:
     backgroundColor: "{colors.slate-surface}"
     textColor: "{colors.parchment-white}"
     rounded: "{rounded.lg}"
+  toast:
+    backgroundColor: "{colors.charcoal-surface}"
+    textColor: "{colors.parchment-white}"
+    rounded: "{rounded.lg}"
+  toast-error:
+    backgroundColor: "{colors.charcoal-surface}"
+    textColor: "{colors.destructive-ember}"
+    rounded: "{rounded.lg}"
 ---
 
 # Design System: DotCard
@@ -201,10 +209,14 @@ Every slab carries a trace of the object it represents — a real serial, a real
 - **Labels:** always the Label typography role — uppercase, tracked-out, Parchment Dim — sitting directly above the field, associated via `htmlFor`/`id` (every select/input in the app is now properly labeled for assistive tech), never inline or floating.
 
 ### Navigation
-- Top bar, `max-w-4xl`, hairline bottom border, `flex-wrap` (never clips a link off-screen — see Layout). The "DotCard" wordmark is itself a link home.
+- A left sidebar (`sm:` and up) that collapses to a horizontal top bar below it — one set of DOM nodes, no duplicate markup and no JS drawer state, just `sm:flex-col` vs. the mobile row; the same single-node discipline the earlier flex-wrap overflow fix used, so it stays testable in jsdom and never regresses mobile (an early fixed-width sidebar draft was shown to break badly at 390px before this). The "DotCard" wordmark is itself a link home.
+- Trimmed to actual browsing destinations — Home, Catálogo, Amigos. "Abrir Pacote" and "Trocas" are actions launched from Home now, not standing links; a nav bar lists places, not verbs.
 - Link labels take the Label typographic role — uppercase, tracked-out — instead of plain sans case, giving the bar structure without decoration.
-- Links are Parchment Dim by default, Molten Gold when active (`aria-current="page"`, managed by the router). The active state reads as a flat 2px gold underline, not glow — still the one place an active/selected state is communicated by a static color/border rather than the rarity-glow language, because a nav bar is wayfinding, not a collectible (The Earned Glow Rule holds: no shadow here, ever).
+- Links are Parchment Dim by default, Molten Gold when active (`aria-current="page"`, managed by the router), on a `bg-legendary/10` pill — not a directional accent border (a side-tab border on a rounded element is the single most recognizable AI-slop tell; a filled pill reads as chosen instead of templated) and not glow either, still the one place an active/selected state is communicated by a static color rather than the rarity-glow language, because a nav bar is wayfinding, not a collectible (The Earned Glow Rule holds: no shadow here, ever).
 - Every link and the "Sair" action (the shared `Button`, `ghost` variant, not raw text) carry a proper `focus-visible` gold ring matching the Button component's own treatment — keyboard navigation is never left to the browser default outline.
+
+### Toasts
+`components/ui/sonner.tsx` wraps `sonner`, themed from the same tokens as everything else (`--normal-bg`/`--normal-text`/`--normal-border` mapped to `--popover`/`--popover-foreground`/`--border`; `--error-*` mapped to Destructive Ember). Dark-only, hardcoded (`theme="dark"`) rather than read from a theme provider the app doesn't have. Scope is deliberately narrow — see the Do's and Don'ts: system/network status the app needs to confess (a login throttled, a request that couldn't reach the server), never a game event.
 
 ### CardArt — "the slab" (signature component)
 The case is a glassy, **colorless** acrylic edge (`linear-gradient(135deg, rgba(255,255,255,.24), rgba(255,255,255,.02) 45%, rgba(255,255,255,.14) 75%, rgba(255,255,255,.24))`) — a 3px padding trick, not a border-image — topped by a label strip (hidden in `compact` mode for small thumbnails):
@@ -227,6 +239,6 @@ Below the label, the art well carries the same wear system as before: an SVG-noi
 ### Don't:
 - **Don't** add drop shadows for generic UI hierarchy (dropdown menus, sticky headers) — depth comes from the surface/ground contrast (Charcoal vs. Slate vs. Void), not shadows.
 - **Don't** introduce a second accent color alongside gold. Secondary/tertiary color only exists as the rarity ladder.
-- **Don't** reach for celebratory mobile-freemium patterns — confetti, toast pop-ups, badge/streak counters — even for genuinely good news (a LEGENDARY pull, a completed trade). The existing pack-shake + glow language is the ceiling for celebration.
+- **Don't** reach for celebratory mobile-freemium patterns — confetti, badge/streak counters, a toast for genuinely good news (a LEGENDARY pull, a completed trade). The existing pack-shake + glow language is the ceiling for celebration. Toasts do have one legitimate job here: system/network status the user didn't cause and can't see any other way (a login throttled, a request that failed to reach the server) — that's information, not celebration, and `components/ui/sonner.tsx` (dark-only, themed off the same tokens) is where it lives. Never toast a game event; only toast what the app itself needs to confess.
 - **Don't** ship a light theme or a `prefers-color-scheme` variant. The identity is dark-only; `dark:` variants stay permanently inert behind a `.dark` class the app never applies.
 - **Don't** let a slab's own label and a nearby list (the exemplar-list modal, a duplicate-count badge) disagree on how the same rarity is colored — one `RARITY_ACCENT` map (`src/shared/rarity.ts`), never a locally hardcoded gold.

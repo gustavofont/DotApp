@@ -1,29 +1,37 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useAuth } from "./AuthContext";
+
+function loginErrorMessage(err: unknown): string {
+  const status = (err as { status?: number } | undefined)?.status;
+  if (status === 429) {
+    return "Muitas tentativas de login. Aguarde cerca de 1 minuto e tente de novo.";
+  }
+  if (status === 403) {
+    return "Conta bloqueada ou inativa.";
+  }
+  if (status === 401 || status === 400) {
+    return "Email ou senha inválidos.";
+  }
+  return "Não foi possível entrar agora. Tente novamente em instantes.";
+}
 
 export function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    setError(null);
     setIsSubmitting(true);
     try {
       await login(email, password);
       void navigate("/", { replace: true });
     } catch (err) {
-      const status = (err as { response?: { status?: number } })?.response?.status;
-      if (status === 403) {
-        setError("Conta bloqueada ou inativa.");
-      } else {
-        setError("Email ou senha inválidos.");
-      }
+      toast.error(loginErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
@@ -70,8 +78,6 @@ export function Login() {
           onChange={(event) => setPassword(event.target.value)}
           className="mb-4 w-full rounded-lg border border-hairline bg-surface-2 px-3 py-2 text-ink outline-none focus-visible:border-legendary"
         />
-
-        {error ? <p className="mb-4 text-sm text-destructive">{error}</p> : null}
 
         <button
           type="submit"
