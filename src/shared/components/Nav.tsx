@@ -33,10 +33,10 @@ export function Nav() {
             end={link.to === "/"}
             className={({ isActive }) =>
               cn(
-                "shrink-0 rounded-sm border-b-2 px-2 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase outline-none transition-colors focus-visible:ring-3 focus-visible:ring-legendary/50 sm:border-b-0 sm:border-l-2",
+                "shrink-0 rounded-full px-3 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase outline-none transition-colors focus-visible:ring-3 focus-visible:ring-legendary/50 sm:rounded-sm",
                 isActive
-                  ? "border-legendary text-legendary"
-                  : "border-transparent text-ink-dim hover:text-ink",
+                  ? "bg-legendary/10 text-legendary"
+                  : "text-ink-dim hover:text-ink",
               )
             }
           >
