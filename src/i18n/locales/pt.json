@@ -2,6 +2,7 @@
   "common": {
     "loading": "Carregando…",
     "back": "Voltar",
+    "close": "Fechar",
     "rarity": {
       "COMMON": "COMMON",
       "RARE": "RARE",
