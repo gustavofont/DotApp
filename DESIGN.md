@@ -201,7 +201,10 @@ Every slab carries a trace of the object it represents — a real serial, a real
 - **Labels:** always the Label typography role — uppercase, tracked-out, Parchment Dim — sitting directly above the field, associated via `htmlFor`/`id` (every select/input in the app is now properly labeled for assistive tech), never inline or floating.
 
 ### Navigation
-- Top bar, `max-w-4xl`, hairline bottom border, `flex-wrap` (never clips a link off-screen — see Layout). Links are Parchment Dim by default, Molten Gold + semibold when active (`aria-current="page"`) — the only place an active/selected state is communicated by color alone rather than gold + glow, because a nav bar is wayfinding, not a collectible.
+- Top bar, `max-w-4xl`, hairline bottom border, `flex-wrap` (never clips a link off-screen — see Layout). The "DotCard" wordmark is itself a link home.
+- Link labels take the Label typographic role — uppercase, tracked-out — instead of plain sans case, giving the bar structure without decoration.
+- Links are Parchment Dim by default, Molten Gold when active (`aria-current="page"`, managed by the router). The active state reads as a flat 2px gold underline, not glow — still the one place an active/selected state is communicated by a static color/border rather than the rarity-glow language, because a nav bar is wayfinding, not a collectible (The Earned Glow Rule holds: no shadow here, ever).
+- Every link and the "Sair" action (the shared `Button`, `ghost` variant, not raw text) carry a proper `focus-visible` gold ring matching the Button component's own treatment — keyboard navigation is never left to the browser default outline.
 
 ### CardArt — "the slab" (signature component)
 The case is a glassy, **colorless** acrylic edge (`linear-gradient(135deg, rgba(255,255,255,.24), rgba(255,255,255,.02) 45%, rgba(255,255,255,.14) 75%, rgba(255,255,255,.24))`) — a 3px padding trick, not a border-image — topped by a label strip (hidden in `compact` mode for small thumbnails):

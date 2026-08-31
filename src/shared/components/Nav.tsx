@@ -1,5 +1,6 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
+import { Button } from "../../components/ui/button";
 import { cn } from "@/lib/utils";
 
 const LINKS = [
@@ -16,9 +17,14 @@ export function Nav() {
   return (
     <header className="border-b border-hairline">
       <div className="mx-auto flex max-w-4xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
-        <span className="shrink-0 font-serif text-lg font-semibold text-ink">DotCard</span>
+        <Link
+          to="/"
+          className="shrink-0 rounded-sm font-serif text-lg font-semibold text-ink outline-none focus-visible:ring-3 focus-visible:ring-legendary/50"
+        >
+          DotCard
+        </Link>
 
-        <nav className="flex flex-1 flex-wrap items-center gap-x-4 gap-y-2">
+        <nav className="flex flex-1 flex-wrap items-center gap-x-1 gap-y-1">
           {LINKS.map((link) => (
             <NavLink
               key={link.to}
@@ -26,8 +32,10 @@ export function Nav() {
               end={link.to === "/"}
               className={({ isActive }) =>
                 cn(
-                  "shrink-0 text-sm whitespace-nowrap",
-                  isActive ? "text-legendary font-semibold" : "text-ink-dim hover:text-ink",
+                  "shrink-0 rounded-sm border-b-2 px-2 py-2 text-xs font-semibold tracking-wide whitespace-nowrap uppercase outline-none transition-colors focus-visible:ring-3 focus-visible:ring-legendary/50",
+                  isActive
+                    ? "border-legendary text-legendary"
+                    : "border-transparent text-ink-dim hover:text-ink",
                 )
               }
             >
@@ -36,12 +44,9 @@ export function Nav() {
           ))}
         </nav>
 
-        <button
-          onClick={() => void logout()}
-          className="shrink-0 text-sm text-ink-faint hover:text-ink"
-        >
+        <Button type="button" variant="ghost" size="sm" onClick={() => void logout()}>
           Sair
-        </button>
+        </Button>
       </div>
     </header>
   );
