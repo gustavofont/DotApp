@@ -6,12 +6,9 @@ import { dotCardClient } from "../../api/client";
 import { Button } from "../../components/ui/button";
 import { CardArt } from "../../shared/components/CardArt";
 import { errorMessage } from "../../shared/apiError";
-import { RARITY_RANK } from "../../shared/rarity";
 import type { components } from "../../api/dotcard.types";
 
 type GeneratedCardResponseDto = components["schemas"]["GeneratedCardResponseDto"];
-
-const SHOWCASE_SIZE = 5;
 
 // Shared by "Melhores cartas" and "Cartas mais raras" — same grid, same
 // CardArt treatment, only the ranking that feeds `exemplars` differs.
@@ -41,21 +38,14 @@ export function Home() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
 
+  // One request for the whole screen — profile plus best/rarest showcases,
+  // already ranked and limited to 5 server-side (GET /me/cards used to be
+  // fetched with limit:100 and sorted here, which silently truncated any
+  // player with more than 100 generated_cards).
   const { data, isLoading, error } = useQuery({
-    queryKey: ["me"],
+    queryKey: ["me", "summary"],
     queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/me");
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  // A large-enough page to rank the *whole* collection by grade, not just
-  // whatever page happened to load — "melhores cartas" means best overall.
-  const myCardsQuery = useQuery({
-    queryKey: ["me", "cards"],
-    queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/me/cards", { params: { query: { limit: 100 } } });
+      const { data, error } = await dotCardClient.GET("/me/summary");
       if (error) throw error;
       return data;
     },
@@ -66,23 +56,8 @@ export function Home() {
       const { error } = await dotCardClient.POST("/me/daily-reward/claim");
       if (error) throw error;
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["me"] }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["me", "summary"] }),
   });
-
-  // Lower float = better condition = higher grade — same convention as
-  // CardArt's own GR label (shared/cardWear.ts).
-  const bestCards = [...(myCardsQuery.data?.items ?? [])]
-    .sort((a, b) => a.floatValue - b.floatValue)
-    .slice(0, SHOWCASE_SIZE);
-
-  // Highest rarity first; float breaks ties within the same rarity (same
-  // "best condition first" convention as bestCards).
-  const rarestCards = [...(myCardsQuery.data?.items ?? [])]
-    .sort(
-      (a, b) =>
-        RARITY_RANK[b.card.rarity] - RARITY_RANK[a.card.rarity] || a.floatValue - b.floatValue,
-    )
-    .slice(0, SHOWCASE_SIZE);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -153,8 +128,8 @@ export function Home() {
             </Link>
           </div>
 
-          <CardShowcase title={t("home.bestCards")} exemplars={bestCards} />
-          <CardShowcase title={t("home.rarestCards")} exemplars={rarestCards} />
+          <CardShowcase title={t("home.bestCards")} exemplars={data.bestCards} />
+          <CardShowcase title={t("home.rarestCards")} exemplars={data.rarestCards} />
         </>
       ) : null}
     </div>

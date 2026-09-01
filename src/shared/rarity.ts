@@ -27,12 +27,3 @@ export const RARITY_GLOW: Record<Rarity, number> = {
   LEGENDARY: 24,
 };
 
-// Ordinal, not a visual value — for ranking exemplars by rarity (e.g. Home's
-// "rarest cards" showcase). Deliberately separate from RARITY_GLOW so a
-// future change to glow px doesn't silently reorder rankings.
-export const RARITY_RANK: Record<Rarity, number> = {
-  COMMON: 0,
-  RARE: 1,
-  EPIC: 2,
-  LEGENDARY: 3,
-};

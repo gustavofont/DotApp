@@ -177,6 +177,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/me/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Home screen in one request: profile + best/rarest showcases */
+        get: operations["GeneratedCardsController_getMySummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/inventory": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One collection, catalog + my ownership per card, no limit (Catálogo, scroll-loaded) */
+        get: operations["GeneratedCardsController_getMyInventoryPage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/inventory/{cardId}/exemplars": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every exemplar I own of one card (id + float only) — for the detail modal */
+        get: operations["GeneratedCardsController_getMyCardExemplars"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{id}/cards": {
         parameters: {
             query?: never;
@@ -470,6 +521,42 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
             card: components["schemas"]["CardResponseDto"];
+        };
+        MeSummaryResponseDto: {
+            friendCode: string;
+            displayName: string;
+            balance: number;
+            /** @description Whether POST /me/daily-reward/claim would succeed right now. */
+            dailyRewardAvailable: boolean;
+            bestCards: components["schemas"]["GeneratedCardResponseDto"][];
+            rarestCards: components["schemas"]["GeneratedCardResponseDto"][];
+        };
+        InventoryOwnershipDto: {
+            count: number;
+            /** @description Id of the exemplar with the best (lowest) float value. */
+            bestGeneratedCardId: string;
+            bestFloatValue: number;
+        };
+        InventoryCardResponseDto: {
+            id: number;
+            name: string;
+            /** @enum {string} */
+            type: "CREATURE" | "LAND" | "SORCERY" | "ARTIFACT";
+            /** @enum {string} */
+            rarity: "COMMON" | "RARE" | "EPIC" | "LEGENDARY";
+            collectionId: number;
+            /** @description Full public URL, built from image_key + STORAGE_PUBLIC_URL — never the raw storage key. */
+            imageUrl: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            ownership: components["schemas"]["InventoryOwnershipDto"] | null;
+        };
+        ExemplarResponseDto: {
+            id: string;
+            /** @description Cosmetic identity of this exemplar, (0,1) — never affects gameplay. */
+            floatValue: number;
         };
         FriendSummaryDto: {
             userId: string;
@@ -949,6 +1036,67 @@ export interface operations {
                         page?: number;
                         limit?: number;
                     };
+                };
+            };
+        };
+    };
+    GeneratedCardsController_getMySummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeSummaryResponseDto"];
+                };
+            };
+        };
+    };
+    GeneratedCardsController_getMyInventoryPage: {
+        parameters: {
+            query: {
+                collectionId: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InventoryCardResponseDto"][];
+                };
+            };
+        };
+    };
+    GeneratedCardsController_getMyCardExemplars: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cardId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExemplarResponseDto"][];
                 };
             };
         };
