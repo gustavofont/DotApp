@@ -232,6 +232,16 @@ The case is a glassy, **colorless** acrylic edge (`linear-gradient(135deg, rgba(
 
 Below the label, the art well carries the same wear system as before: an SVG-noise grain layer, three procedurally-scratched layers (hairline/scuff/gouge, gradient ids namespaced per-exemplar so adjacent cards in a grid never collide), four corner smudges, and an inset vignette, all scaled by the exemplar's real `float_value` — the same data that now also drives the visible GR number, so the numeric grade and the visible wear always agree. Locked (unowned) cards render as an empty case: a dashed hairline outline, a blank label-height strip with no content, and a centered lock icon at 40% opacity — deliberately inert, no gradient, no glow, so an unowned card never competes visually with a certified one.
 
+### Catálogo — uma coleção por vez
+Cartas carregam por coleção, não a coleção inteira do jogo de uma vez — a
+primeira coleção aparece ao abrir a tela, a próxima só quando o scroll
+chega ao fim da atual (sentinel + `IntersectionObserver`). Dentro de cada
+coleção já carregada, cartas possuídas ficam num grid; as trancadas saem
+dali e formam uma seção própria abaixo, com o rótulo "Cartas faltando" —
+nunca misturadas na mesma grade. `content-visibility: auto` nos dois
+grids evita layout/paint de qualquer trecho fora da viewport, sem precisar
+de virtualização (coleções são curadas e pequenas por natureza).
+
 ## Do's and Don'ts
 
 ### Do:
