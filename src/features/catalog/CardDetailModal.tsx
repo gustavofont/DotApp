@@ -5,6 +5,7 @@ import { dotCardClient } from "../../api/client";
 import { CardArt } from "../../shared/components/CardArt";
 import { gradeFromFloat } from "../../shared/cardWear";
 import { RARITY_ACCENT } from "../../shared/rarity";
+import { unwrap } from "../../shared/apiUnwrap";
 import type { components } from "../../api/dotcard.types";
 
 type InventoryCardResponseDto = components["schemas"]["InventoryCardResponseDto"];
@@ -56,13 +57,10 @@ export function CardDetailModal({ card, onOpenChange }: CardDetailModalProps) {
   // this fetch only feeds the list below it.
   const exemplarsQuery = useQuery({
     queryKey: ["me", "inventory", card?.id, "exemplars"],
-    queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/me/inventory/{cardId}/exemplars", {
-        params: { path: { cardId: card!.id } },
-      });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () =>
+      unwrap(
+        dotCardClient.GET("/me/inventory/{cardId}/exemplars", { params: { path: { cardId: card!.id } } }),
+      ),
     enabled: card !== null && owned,
   });
 

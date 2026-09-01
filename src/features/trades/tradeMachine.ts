@@ -1,5 +1,6 @@
 import { setup, assign, fromPromise } from "xstate";
 import { dotCardClient } from "../../api/client";
+import { unwrap } from "../../shared/apiUnwrap";
 import type { components } from "../../api/dotcard.types";
 
 export type Trade = components["schemas"]["TradeResponseDto"];
@@ -30,53 +31,41 @@ type TradeEvent =
   | { type: "CANCEL" }
   | { type: "RESET" };
 
-async function fetchTrade({ input }: { input: { tradeId: string } }): Promise<Trade> {
-  const { data, error } = await dotCardClient.GET("/trades/{id}", {
-    params: { path: { id: input.tradeId } },
-  });
-  if (error) throw error;
-  return data;
+function fetchTrade({ input }: { input: { tradeId: string } }): Promise<Trade> {
+  return unwrap(dotCardClient.GET("/trades/{id}", { params: { path: { id: input.tradeId } } }));
 }
 
-async function createTrade({
+function createTrade({
   input,
 }: {
   input: { toUserId: string; offeredCardId: string };
 }): Promise<Trade> {
-  const { data, error } = await dotCardClient.POST("/trades", {
-    body: { toUserId: input.toUserId, offeredCardId: input.offeredCardId },
-  });
-  if (error) throw error;
-  return data;
+  return unwrap(
+    dotCardClient.POST("/trades", {
+      body: { toUserId: input.toUserId, offeredCardId: input.offeredCardId },
+    }),
+  );
 }
 
-async function submitCounterpart({
+function submitCounterpart({
   input,
 }: {
   input: { tradeId: string; requestedCardId: string };
 }): Promise<Trade> {
-  const { data, error } = await dotCardClient.POST("/trades/{id}/counterpart", {
-    params: { path: { id: input.tradeId } },
-    body: { requestedCardId: input.requestedCardId },
-  });
-  if (error) throw error;
-  return data;
+  return unwrap(
+    dotCardClient.POST("/trades/{id}/counterpart", {
+      params: { path: { id: input.tradeId } },
+      body: { requestedCardId: input.requestedCardId },
+    }),
+  );
 }
 
-async function confirmTrade({ input }: { input: { tradeId: string } }): Promise<Trade> {
-  const { data, error } = await dotCardClient.POST("/trades/{id}/confirm", {
-    params: { path: { id: input.tradeId } },
-  });
-  if (error) throw error;
-  return data;
+function confirmTrade({ input }: { input: { tradeId: string } }): Promise<Trade> {
+  return unwrap(dotCardClient.POST("/trades/{id}/confirm", { params: { path: { id: input.tradeId } } }));
 }
 
-async function cancelTrade({ input }: { input: { tradeId: string } }): Promise<Trade> {
-  const { data, error } = await dotCardClient.POST("/trades/{id}/cancel", {
-    params: { path: { id: input.tradeId } },
-  });
-  if (error) throw error;
-  return data;
+function cancelTrade({ input }: { input: { tradeId: string } }): Promise<Trade> {
+  return unwrap(dotCardClient.POST("/trades/{id}/cancel", { params: { path: { id: input.tradeId } } }));
 }
 
 export const tradeMachine = setup({

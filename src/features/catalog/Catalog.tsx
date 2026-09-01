@@ -5,6 +5,7 @@ import { dotCardClient } from "../../api/client";
 import { CardArt } from "../../shared/components/CardArt";
 import { Button } from "../../components/ui/button";
 import { RARITY_ACCENT } from "../../shared/rarity";
+import { unwrap } from "../../shared/apiUnwrap";
 import { CardDetailModal } from "./CardDetailModal";
 import type { components } from "../../api/dotcard.types";
 
@@ -38,11 +39,7 @@ export function Catalog() {
 
   const collectionsQuery = useQuery({
     queryKey: ["collections"],
-    queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/collections");
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(dotCardClient.GET("/collections")),
   });
   const collections = collectionsQuery.data ?? [];
 
@@ -53,11 +50,10 @@ export function Catalog() {
     queryKey: ["me", "inventory", collections.map((c) => c.id)],
     queryFn: async ({ pageParam }: { pageParam: number }): Promise<InventoryPage> => {
       const collection = collections[pageParam];
-      const { data, error } = await dotCardClient.GET("/me/inventory", {
-        params: { query: { collectionId: collection.id } },
-      });
-      if (error) throw error;
-      return { collectionId: collection.id, collectionName: collection.name, items: data };
+      const items = await unwrap(
+        dotCardClient.GET("/me/inventory", { params: { query: { collectionId: collection.id } } }),
+      );
+      return { collectionId: collection.id, collectionName: collection.name, items };
     },
     initialPageParam: 0,
     getNextPageParam: (_lastPage, allPages) =>

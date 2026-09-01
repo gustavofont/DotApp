@@ -6,6 +6,7 @@ import { dotCardClient } from "../../api/client";
 import { getCurrentUserId } from "../../auth/tokenStore";
 import { CardArt } from "../../shared/components/CardArt";
 import { Button } from "../../components/ui/button";
+import { unwrap } from "../../shared/apiUnwrap";
 import { CardPicker } from "./CardPicker";
 import { tradeMachine, type Trade } from "./tradeMachine";
 import type { components } from "../../api/dotcard.types";
@@ -26,30 +27,18 @@ export function Trades() {
 
   const tradesQuery = useQuery({
     queryKey: ["trades"],
-    queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/trades");
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(dotCardClient.GET("/trades")),
     enabled: state.matches("idle"),
   });
 
   const friendsQuery = useQuery({
     queryKey: ["friends"],
-    queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/friends");
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(dotCardClient.GET("/friends")),
   });
 
   const myCardsQuery = useQuery({
     queryKey: ["me", "cards"],
-    queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/me/cards", { params: { query: { limit: 100 } } });
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(dotCardClient.GET("/me/cards", { params: { query: { limit: 100 } } })),
     enabled: creating || state.matches("open"),
   });
 

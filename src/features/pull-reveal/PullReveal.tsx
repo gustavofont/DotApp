@@ -7,6 +7,7 @@ import { dotCardClient } from "../../api/client";
 import { CardArt } from "../../shared/components/CardArt";
 import { Button } from "../../components/ui/button";
 import { DEFAULT_PACK_COVER_URL, getPackCoverUrl } from "../../shared/assets";
+import { unwrap } from "../../shared/apiUnwrap";
 import { pullMachine, type PackSize } from "./pullMachine";
 
 const SIZE_OPTIONS: { size: PackSize; cost: number }[] = [
@@ -33,11 +34,7 @@ export function PullReveal() {
 
   const collectionsQuery = useQuery({
     queryKey: ["collections"],
-    queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/collections");
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(dotCardClient.GET("/collections")),
   });
 
   // Default to "Kingdom of Eldrath" — the only collection with real card art

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dotCardClient } from "../../api/client";
 import { Button } from "../../components/ui/button";
 import { errorMessage } from "../../shared/apiError";
+import { unwrap } from "../../shared/apiUnwrap";
 
 export function Friends() {
   const { t } = useTranslation();
@@ -13,20 +14,12 @@ export function Friends() {
 
   const friendsQuery = useQuery({
     queryKey: ["friends"],
-    queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/friends");
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(dotCardClient.GET("/friends")),
   });
 
   const meQuery = useQuery({
     queryKey: ["me"],
-    queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/me");
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(dotCardClient.GET("/me")),
   });
 
   function invalidateFriends() {
@@ -34,12 +27,8 @@ export function Friends() {
   }
 
   const inviteMutation = useMutation({
-    mutationFn: async (code: string) => {
-      const { error } = await dotCardClient.POST("/friends/invites", {
-        body: { friendCode: code },
-      });
-      if (error) throw error;
-    },
+    mutationFn: (code: string) =>
+      unwrap(dotCardClient.POST("/friends/invites", { body: { friendCode: code } })),
     onSuccess: () => {
       setFriendCode("");
       setInviteError(null);
@@ -51,40 +40,25 @@ export function Friends() {
   });
 
   const acceptMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      const { error } = await dotCardClient.POST("/friends/invites/{id}/accept", {
-        params: { path: { id: userId } },
-      });
-      if (error) throw error;
-    },
+    mutationFn: (userId: string) =>
+      unwrap(dotCardClient.POST("/friends/invites/{id}/accept", { params: { path: { id: userId } } })),
     onSuccess: invalidateFriends,
   });
 
   const declineMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      const { error } = await dotCardClient.DELETE("/friends/invites/{id}", {
-        params: { path: { id: userId } },
-      });
-      if (error) throw error;
-    },
+    mutationFn: (userId: string) =>
+      unwrap(dotCardClient.DELETE("/friends/invites/{id}", { params: { path: { id: userId } } })),
     onSuccess: invalidateFriends,
   });
 
   const removeMutation = useMutation({
-    mutationFn: async (userId: string) => {
-      const { error } = await dotCardClient.DELETE("/friends/{userId}", {
-        params: { path: { userId } },
-      });
-      if (error) throw error;
-    },
+    mutationFn: (userId: string) =>
+      unwrap(dotCardClient.DELETE("/friends/{userId}", { params: { path: { userId } } })),
     onSuccess: invalidateFriends,
   });
 
   const rotateMutation = useMutation({
-    mutationFn: async () => {
-      const { error } = await dotCardClient.POST("/me/friend-code/rotate");
-      if (error) throw error;
-    },
+    mutationFn: () => unwrap(dotCardClient.POST("/me/friend-code/rotate")),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["me"] }),
   });
 

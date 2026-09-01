@@ -6,6 +6,7 @@ import { dotCardClient } from "../../api/client";
 import { Button } from "../../components/ui/button";
 import { CardArt } from "../../shared/components/CardArt";
 import { errorMessage } from "../../shared/apiError";
+import { unwrap } from "../../shared/apiUnwrap";
 import type { components } from "../../api/dotcard.types";
 
 type GeneratedCardResponseDto = components["schemas"]["GeneratedCardResponseDto"];
@@ -44,18 +45,11 @@ export function Home() {
   // player with more than 100 generated_cards).
   const { data, isLoading, error } = useQuery({
     queryKey: ["me", "summary"],
-    queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/me/summary");
-      if (error) throw error;
-      return data;
-    },
+    queryFn: () => unwrap(dotCardClient.GET("/me/summary")),
   });
 
   const claimMutation = useMutation({
-    mutationFn: async () => {
-      const { error } = await dotCardClient.POST("/me/daily-reward/claim");
-      if (error) throw error;
-    },
+    mutationFn: () => unwrap(dotCardClient.POST("/me/daily-reward/claim")),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ["me", "summary"] }),
   });
 
