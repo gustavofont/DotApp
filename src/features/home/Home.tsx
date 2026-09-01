@@ -6,6 +6,36 @@ import { dotCardClient } from "../../api/client";
 import { Button } from "../../components/ui/button";
 import { CardArt } from "../../shared/components/CardArt";
 import { errorMessage } from "../../shared/apiError";
+import { RARITY_RANK } from "../../shared/rarity";
+import type { components } from "../../api/dotcard.types";
+
+type GeneratedCardResponseDto = components["schemas"]["GeneratedCardResponseDto"];
+
+const SHOWCASE_SIZE = 5;
+
+// Shared by "Melhores cartas" and "Cartas mais raras" — same grid, same
+// CardArt treatment, only the ranking that feeds `exemplars` differs.
+function CardShowcase({ title, exemplars }: { title: string; exemplars: GeneratedCardResponseDto[] }) {
+  if (exemplars.length === 0) return null;
+
+  return (
+    <div className="mt-6">
+      <p className="mb-2 text-xs font-semibold tracking-wide text-ink-faint uppercase">{title}</p>
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
+        {exemplars.map((exemplar) => (
+          <CardArt
+            key={exemplar.id}
+            name={exemplar.card.name}
+            imageUrl={exemplar.card.imageUrl}
+            rarity={exemplar.card.rarity}
+            cardType={exemplar.card.type}
+            wear={{ floatValue: exemplar.floatValue, seed: Number(exemplar.id) }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function Home() {
   const { t } = useTranslation();
@@ -43,7 +73,16 @@ export function Home() {
   // CardArt's own GR label (shared/cardWear.ts).
   const bestCards = [...(myCardsQuery.data?.items ?? [])]
     .sort((a, b) => a.floatValue - b.floatValue)
-    .slice(0, 6);
+    .slice(0, SHOWCASE_SIZE);
+
+  // Highest rarity first; float breaks ties within the same rarity (same
+  // "best condition first" convention as bestCards).
+  const rarestCards = [...(myCardsQuery.data?.items ?? [])]
+    .sort(
+      (a, b) =>
+        RARITY_RANK[b.card.rarity] - RARITY_RANK[a.card.rarity] || a.floatValue - b.floatValue,
+    )
+    .slice(0, SHOWCASE_SIZE);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -114,25 +153,8 @@ export function Home() {
             </Link>
           </div>
 
-          {bestCards.length > 0 ? (
-            <div className="mt-6">
-              <p className="mb-2 text-xs font-semibold tracking-wide text-ink-faint uppercase">
-                {t("home.bestCards")}
-              </p>
-              <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
-                {bestCards.map((exemplar) => (
-                  <CardArt
-                    key={exemplar.id}
-                    name={exemplar.card.name}
-                    imageUrl={exemplar.card.imageUrl}
-                    rarity={exemplar.card.rarity}
-                    cardType={exemplar.card.type}
-                    wear={{ floatValue: exemplar.floatValue, seed: Number(exemplar.id) }}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : null}
+          <CardShowcase title={t("home.bestCards")} exemplars={bestCards} />
+          <CardShowcase title={t("home.rarestCards")} exemplars={rarestCards} />
         </>
       ) : null}
     </div>

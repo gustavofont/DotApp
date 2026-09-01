@@ -31,7 +31,8 @@
     "profileError": "Couldn't load your profile.",
     "openPack": "Open Pack",
     "trades": "Trades",
-    "bestCards": "Best cards"
+    "bestCards": "Best cards",
+    "rarestCards": "Rarest cards"
   },
   "catalog": {
     "title": "Catalog",

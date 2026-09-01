@@ -31,7 +31,8 @@
     "profileError": "Não foi possível carregar seu perfil.",
     "openPack": "Abrir Pacote",
     "trades": "Trocas",
-    "bestCards": "Melhores cartas"
+    "bestCards": "Melhores cartas",
+    "rarestCards": "Cartas mais raras"
   },
   "catalog": {
     "title": "Catálogo",
