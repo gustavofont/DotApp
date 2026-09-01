@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { dotCardClient } from "../../api/client";
 import { CardArt } from "../../shared/components/CardArt";
 import { Button } from "../../components/ui/button";
@@ -8,68 +8,100 @@ import { RARITY_ACCENT } from "../../shared/rarity";
 import { CardDetailModal } from "./CardDetailModal";
 import type { components } from "../../api/dotcard.types";
 
-type CardResponseDto = components["schemas"]["CardResponseDto"];
-type GeneratedCardResponseDto = components["schemas"]["GeneratedCardResponseDto"];
+type InventoryCardResponseDto = components["schemas"]["InventoryCardResponseDto"];
 type Rarity = "COMMON" | "RARE" | "EPIC" | "LEGENDARY";
 type CardType = "CREATURE" | "LAND" | "SORCERY" | "ARTIFACT";
 
 const RARITIES: Rarity[] = ["COMMON", "RARE", "EPIC", "LEGENDARY"];
 const TYPES: CardType[] = ["CREATURE", "LAND", "SORCERY", "ARTIFACT"];
 
+// Skips layout/paint for whatever's off-screen — cheap, native, no library.
+// Collections are curated and small (SCOPE.md §13), so a rough intrinsic
+// size is fine; `auto` lets the browser use the real size once measured.
+const LAZY_SECTION_STYLE = {
+  contentVisibility: "auto",
+  containIntrinsicSize: "auto 400px",
+} as const;
+
+interface InventoryPage {
+  collectionId: number;
+  collectionName: string;
+  items: InventoryCardResponseDto[];
+}
+
 export function Catalog() {
   const { t } = useTranslation();
   const [rarityFilter, setRarityFilter] = useState<Rarity | null>(null);
   const [typeFilter, setTypeFilter] = useState<CardType | null>(null);
-  const [selectedCard, setSelectedCard] = useState<CardResponseDto | null>(null);
+  const [selectedCard, setSelectedCard] = useState<InventoryCardResponseDto | null>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const cardsQuery = useQuery({
-    queryKey: ["cards"],
+  const collectionsQuery = useQuery({
+    queryKey: ["collections"],
     queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/cards", { params: { query: { limit: 100 } } });
+      const { data, error } = await dotCardClient.GET("/collections");
       if (error) throw error;
       return data;
     },
   });
+  const collections = collectionsQuery.data ?? [];
 
-  const myCardsQuery = useQuery({
-    queryKey: ["me", "cards"],
-    queryFn: async () => {
-      const { data, error } = await dotCardClient.GET("/me/cards", { params: { query: { limit: 100 } } });
+  // One page per collection, loaded in order — never "give me everything",
+  // only the next collection, and only once the user actually scrolls to
+  // where it would appear.
+  const inventoryQuery = useInfiniteQuery({
+    queryKey: ["me", "inventory", collections.map((c) => c.id)],
+    queryFn: async ({ pageParam }: { pageParam: number }): Promise<InventoryPage> => {
+      const collection = collections[pageParam];
+      const { data, error } = await dotCardClient.GET("/me/inventory", {
+        params: { query: { collectionId: collection.id } },
+      });
       if (error) throw error;
-      return data;
+      return { collectionId: collection.id, collectionName: collection.name, items: data };
     },
+    initialPageParam: 0,
+    getNextPageParam: (_lastPage, allPages) =>
+      allPages.length < collections.length ? allPages.length : undefined,
+    enabled: collections.length > 0,
   });
 
-  const exemplarsByCardId = useMemo(() => {
-    const map = new Map<number, GeneratedCardResponseDto[]>();
-    for (const exemplar of myCardsQuery.data?.items ?? []) {
-      const existing = map.get(exemplar.card.id);
-      if (existing) {
-        existing.push(exemplar);
-      } else {
-        map.set(exemplar.card.id, [exemplar]);
+  const { hasNextPage, isFetchingNextPage, fetchNextPage } = inventoryQuery;
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        void fetchNextPage();
       }
-    }
-    return map;
-  }, [myCardsQuery.data]);
+    });
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const cards = cardsQuery.data?.items ?? [];
-  const filteredCards = cards.filter((card) => {
+  const pages = inventoryQuery.data?.pages ?? [];
+
+  function matchesFilters(card: InventoryCardResponseDto): boolean {
     if (rarityFilter && card.rarity !== rarityFilter) return false;
     if (typeFilter && card.type !== typeFilter) return false;
     return true;
-  });
+  }
 
-  const isLoading = cardsQuery.isLoading || myCardsQuery.isLoading;
-  const error = cardsQuery.error ?? myCardsQuery.error;
+  const ownedSoFar = pages.reduce(
+    (sum, page) => sum + page.items.filter((card) => card.ownership !== null).length,
+    0,
+  );
+  const loadedSoFar = pages.reduce((sum, page) => sum + page.items.length, 0);
+
+  const isLoading = collectionsQuery.isLoading || inventoryQuery.isLoading;
+  const error = collectionsQuery.error ?? inventoryQuery.error;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-serif text-xl font-semibold text-ink">{t("catalog.title")}</h1>
-        {cardsQuery.data ? (
+        {pages.length > 0 ? (
           <span className="text-sm text-ink-faint">
-            {exemplarsByCardId.size} / {cardsQuery.data.total}
+            {ownedSoFar} / {loadedSoFar}
           </span>
         ) : null}
       </div>
@@ -111,61 +143,95 @@ export function Catalog() {
       {isLoading ? <p className="text-ink-dim">{t("common.loading")}</p> : null}
       {error ? <p className="text-destructive">{t("catalog.loadError")}</p> : null}
 
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
-        {filteredCards.map((card) => {
-          const exemplars = exemplarsByCardId.get(card.id) ?? [];
-          // Lowest float = best condition — same convention as the modal's
-          // "best" exemplar and the grid tile now shows it via CardArt's
-          // own serial/grade label instead of staying silent about it.
-          const best =
-            exemplars.length > 0
-              ? [...exemplars].sort((a, b) => a.floatValue - b.floatValue)[0]
-              : null;
-          return (
-            <button
-              key={card.id}
-              type="button"
-              onClick={() => setSelectedCard(card)}
-              className="text-left"
-            >
-              <div className="relative">
-                <CardArt
-                  name={card.name}
-                  imageUrl={card.imageUrl}
-                  rarity={card.rarity}
-                  cardType={card.type}
-                  locked={exemplars.length === 0}
-                  wear={best ? { floatValue: best.floatValue, seed: Number(best.id) } : undefined}
-                />
-                {exemplars.length > 1 ? (
-                  <span
-                    className="absolute right-1 bottom-1 rounded-sm border border-hairline bg-ground px-1 py-0.5 font-mono text-[9px] font-bold"
-                    style={{ color: RARITY_ACCENT[card.rarity] }}
-                  >
-                    ×{exemplars.length}
-                  </span>
-                ) : null}
+      {pages.map((page) => {
+        const filtered = page.items.filter(matchesFilters);
+        if (filtered.length === 0) return null;
+        const owned = filtered.filter((card) => card.ownership !== null);
+        const missing = filtered.filter((card) => card.ownership === null);
+
+        return (
+          <div key={page.collectionId} className="mb-8">
+            <h2 className="mb-3 font-serif text-lg font-semibold text-ink">{page.collectionName}</h2>
+
+            {owned.length > 0 ? (
+              <div
+                className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5"
+                style={LAZY_SECTION_STYLE}
+              >
+                {owned.map((card) => (
+                  <CatalogTile key={card.id} card={card} onSelect={setSelectedCard} />
+                ))}
               </div>
-              {exemplars.length === 0 ? (
-                // Locked cards render an empty, label-less case — this is
-                // the only place their name is visible to a sighted user.
-                // An owned card already carries its name on the slab's own
-                // label, so repeating it here would just be a caption under
-                // a caption.
-                <p className="mt-1 truncate text-xs text-ink-dim">{card.name}</p>
-              ) : null}
-            </button>
-          );
-        })}
-      </div>
+            ) : null}
+
+            {missing.length > 0 ? (
+              <>
+                <h3 className="mt-5 mb-2 text-xs font-semibold tracking-wide text-ink-faint uppercase">
+                  {t("catalog.missingCards")}
+                </h3>
+                <div
+                  className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5"
+                  style={LAZY_SECTION_STYLE}
+                >
+                  {missing.map((card) => (
+                    <CatalogTile key={card.id} card={card} onSelect={setSelectedCard} />
+                  ))}
+                </div>
+              </>
+            ) : null}
+          </div>
+        );
+      })}
+
+      <div ref={sentinelRef} aria-hidden="true" className="h-1" />
 
       <CardDetailModal
         card={selectedCard}
-        exemplars={selectedCard ? (exemplarsByCardId.get(selectedCard.id) ?? []) : []}
         onOpenChange={(open) => {
           if (!open) setSelectedCard(null);
         }}
       />
     </div>
+  );
+}
+
+function CatalogTile({
+  card,
+  onSelect,
+}: {
+  card: InventoryCardResponseDto;
+  onSelect: (card: InventoryCardResponseDto) => void;
+}) {
+  return (
+    <button type="button" onClick={() => onSelect(card)} className="text-left">
+      <div className="relative">
+        <CardArt
+          name={card.name}
+          imageUrl={card.imageUrl}
+          rarity={card.rarity}
+          cardType={card.type}
+          locked={card.ownership === null}
+          wear={
+            card.ownership
+              ? { floatValue: card.ownership.bestFloatValue, seed: Number(card.ownership.bestGeneratedCardId) }
+              : undefined
+          }
+        />
+        {card.ownership && card.ownership.count > 1 ? (
+          <span
+            className="absolute right-1 bottom-1 rounded-sm border border-hairline bg-ground px-1 py-0.5 font-mono text-[9px] font-bold"
+            style={{ color: RARITY_ACCENT[card.rarity] }}
+          >
+            ×{card.ownership.count}
+          </span>
+        ) : null}
+      </div>
+      {card.ownership === null ? (
+        // Locked cards render an empty, label-less case — this is the only
+        // place their name is visible to a sighted user. An owned card
+        // already carries its name on the slab's own label.
+        <p className="mt-1 truncate text-xs text-ink-dim">{card.name}</p>
+      ) : null}
+    </button>
   );
 }

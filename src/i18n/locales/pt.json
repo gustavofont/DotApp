@@ -37,6 +37,7 @@
   "catalog": {
     "title": "Catálogo",
     "all": "Todas",
+    "missingCards": "Cartas faltando",
     "loadError": "Não foi possível carregar o catálogo."
   },
   "cardDetail": {

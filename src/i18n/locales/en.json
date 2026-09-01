@@ -37,6 +37,7 @@
   "catalog": {
     "title": "Catalog",
     "all": "All",
+    "missingCards": "Missing cards",
     "loadError": "Couldn't load the catalog."
   },
   "cardDetail": {
