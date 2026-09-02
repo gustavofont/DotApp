@@ -27,9 +27,10 @@ export function Nav() {
     <aside className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-hairline px-4 py-3 sm:sticky sm:top-0 sm:h-svh sm:w-56 sm:shrink-0 sm:flex-col sm:items-stretch sm:gap-0 sm:border-r sm:border-b-0 sm:px-0 sm:py-0">
       <Link
         to="/"
-        className="shrink-0 rounded-sm font-serif text-lg font-semibold text-ink outline-none focus-visible:ring-3 focus-visible:ring-legendary/50 sm:px-6 sm:py-5"
+        className="flex shrink-0 items-center gap-2 rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-legendary/50 sm:px-6 sm:py-5"
       >
-        DotCard
+        <img src="/favicon.svg" alt="" className="size-8" />
+        <span className="font-serif text-lg font-semibold text-ink">DotCard</span>
       </Link>
 
       <nav className="flex flex-1 flex-wrap items-center gap-x-1 gap-y-1 sm:flex-1 sm:flex-col sm:items-stretch sm:gap-1 sm:px-3 sm:py-2">
