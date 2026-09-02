@@ -42,6 +42,10 @@ export function getCurrentUserName(): string | null {
   return decodeTokenClaim("name");
 }
 
+export function getCurrentUserEmail(): string | null {
+  return decodeTokenClaim("email");
+}
+
 const REFRESH_TOKEN_KEY = "dotapp.refreshToken";
 
 export function getRefreshToken(): string | null {

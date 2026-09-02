@@ -2,7 +2,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { CircleUserRound, LogOut } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
-import { getCurrentUserName } from "../../auth/tokenStore";
+import { getCurrentUserEmail, getCurrentUserName } from "../../auth/tokenStore";
 import { Button } from "../../components/ui/button";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,7 @@ export function Nav() {
   const { t } = useTranslation();
   const { logout } = useAuth();
   const userName = getCurrentUserName();
+  const userEmail = getCurrentUserEmail();
 
   return (
     <aside className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-hairline px-4 py-3 sm:sticky sm:top-0 sm:h-svh sm:w-56 sm:shrink-0 sm:flex-col sm:items-stretch sm:gap-0 sm:border-r sm:border-b-0 sm:px-0 sm:py-0">
@@ -55,22 +56,37 @@ export function Nav() {
         <LanguageSwitcher />
 
         {userName ? (
-          <div className="flex items-center gap-2 sm:w-full sm:rounded-sm sm:px-1 sm:py-1.5">
-            <CircleUserRound className="size-7 shrink-0 rounded-full text-ink-dim" strokeWidth={1.5} />
-            <span className="truncate text-sm font-medium text-ink sm:min-w-0">{userName}</span>
+          <div className="flex items-center gap-2 rounded-lg bg-surface-2 py-1.5 pr-1.5 pl-2 sm:w-full">
+            <CircleUserRound className="size-8 shrink-0 text-ink-dim" strokeWidth={1.5} />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-medium text-ink">{userName}</p>
+              {userEmail ? (
+                <p className="truncate text-xs text-ink-faint">{userEmail}</p>
+              ) : null}
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon-sm"
+              className="shrink-0"
+              onClick={() => void logout()}
+            >
+              <LogOut className="size-4" strokeWidth={1.75} />
+              <span className="sr-only">{t("nav.logout")}</span>
+            </Button>
           </div>
-        ) : null}
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="gap-2 sm:w-full sm:justify-start"
-          onClick={() => void logout()}
-        >
-          <LogOut className="size-4" strokeWidth={1.75} />
-          {t("nav.logout")}
-        </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="gap-2 sm:w-full sm:justify-start"
+            onClick={() => void logout()}
+          >
+            <LogOut className="size-4" strokeWidth={1.75} />
+            {t("nav.logout")}
+          </Button>
+        )}
       </div>
     </aside>
   );
