@@ -125,6 +125,8 @@ The palette is almost monochrome by design — void-black and parchment-white ca
 - **Epic Amethyst** (`#a846e6`): EPIC rarity. Stronger glow (16px).
 - *(LEGENDARY reuses Molten Gold/Legendary Shine above, at the strongest glow — 24px — rather than introducing a fifth color.)*
 
+Each rarity also has a "soft" variant (`RARITY_ACCENT_SOFT`, `src/shared/rarity.ts`) — the lighter middle stop in the holo strip's diagonal light-sheen gradient, one per rarity: Common Steel Soft (`#c7c7cc`), Rare Sapphire Soft (`#7fb0f0`), Epic Amethyst Soft (`#c584f0`), and Legendary Shine (above) for LEGENDARY.
+
 Every rarity-colored element — the holo strip, the glow, a card's own GR text, the exemplar-list's GR text, the duplicate-count `×N` badge — reads its color from the same `RARITY_ACCENT` map (`src/shared/rarity.ts`), the single source of truth. Gold appearing on a COMMON/RARE/EPIC element anywhere is a bug, not a variant.
 
 ### Neutral
@@ -166,7 +168,7 @@ Every rarity-colored element — the holo strip, the glow, a card's own GR text,
 
 ## Layout
 
-Single-column, centered layouts throughout — `max-w-md` (28rem) for focused single-task screens (Home, Login, Abrir Pacote, Amigos, Trocas), `max-w-4xl` (56rem) for the Nav shell and the Catálogo grid. No sidebar, no multi-column dashboard chrome. The Nav wraps onto a second line rather than clipping items on narrow viewports (`flex-wrap`, not `overflow-x-auto` with no scroll affordance) — every screen genuinely works down to 390px now, not just in theory.
+Single-column, centered layouts throughout — `max-w-sm` (24rem) for the auth screens (Login, ForgotPassword, ResetPassword), `max-w-md` (28rem) for other focused single-task screens (Abrir Pacote, Amigos, Trocas), `max-w-4xl` (56rem) for the Nav shell, Home, and the Catálogo grid — Home needs the wider column to fit its "Melhores cartas"/"Cartas mais raras" showcase grids (3-5 columns). No multi-column dashboard chrome beyond the sidebar itself — see Navigation below for the sidebar's own rules. The Nav wraps onto a second line rather than clipping items on narrow viewports (`flex-wrap`, not `overflow-x-auto` with no scroll affordance) — every screen genuinely works down to 390px now, not just in theory.
 
 Spacing rhythm follows Tailwind's default scale directly: `gap-2` (8px) between tightly related controls (a row of pack-size buttons), `gap-4` (16px) between form fields, `gap-6` (24px) between distinct sections of a screen. Grids (Catálogo) use `gap-3` (12px) between tiles.
 
@@ -206,7 +208,7 @@ Every slab carries a trace of the object it represents — a real serial, a real
 ### Inputs / Fields
 - **Style:** Slate Surface background, hairline border, `rounded-lg`, `px-3 py-2`.
 - **Focus:** border shifts to Molten Gold (`focus-visible:border-legendary`) — no glow, no ring on plain text inputs; the gold border alone is enough.
-- **Labels:** always the Label typography role — uppercase, tracked-out, Parchment Dim — sitting directly above the field, associated via `htmlFor`/`id` (every select/input in the app is now properly labeled for assistive tech), never inline or floating.
+- **Labels:** always the Label typography role — uppercase, tracked-out, Parchment Faint (not Parchment Dim — labels are small text, and Parchment Dim falls short of WCAG AA at that size; see the contrast note in `index.css`) — sitting directly above the field, associated via `htmlFor`/`id` (every select/input in the app is now properly labeled for assistive tech), never inline or floating.
 
 ### Navigation
 - A left sidebar (`sm:` and up) that collapses to a horizontal top bar below it — one set of DOM nodes, no duplicate markup and no JS drawer state, just `sm:flex-col` vs. the mobile row; the same single-node discipline the earlier flex-wrap overflow fix used, so it stays testable in jsdom and never regresses mobile (an early fixed-width sidebar draft was shown to break badly at 390px before this). The "DotCard" wordmark is itself a link home.
