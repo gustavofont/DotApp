@@ -76,7 +76,7 @@ export function CardArt({
       style={{
         background:
           "linear-gradient(135deg, rgba(255,255,255,0.24), rgba(255,255,255,0.02) 45%, rgba(255,255,255,0.14) 75%, rgba(255,255,255,0.24))",
-        boxShadow: glow > 0 ? `0 0 ${glow * 1.2}px 0 color-mix(in srgb, ${accent} 45%, transparent)` : undefined,
+        boxShadow: glow > 0 ? `0 0 ${glow}px 0 color-mix(in srgb, ${accent} 45%, transparent)` : undefined,
       }}
     >
       <div className="flex h-full w-full flex-col overflow-hidden rounded-[7px] bg-surface-2">
