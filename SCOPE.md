@@ -29,7 +29,7 @@ a API retorna e envia comandos.
 | BFF | Nenhum | Um proxy resolveria o problema do refresh token (cookie httpOnly de verdade), mas adiciona mais um serviço pra manter/deployar e muda a decisão de "SPA sem SSR". Reconsiderado explicitamente e descartado. |
 | Tempo real (trocas) | Polling via TanStack Query (`refetchInterval`) | O backend não tem WebSocket/push hoje; não vale adicionar infraestrutura nova só pro front antes de existir necessidade real. |
 | Design system | Paleta de `RARITY_STYLE` (originalmente de `DotCardGenerator/card_composer.py`) como token-base | Reaproveita a identidade visual já validada nas cartas reais, em vez de inventar uma paleta nova pro resto do app. |
-| Moldura da carta | 100% CSS, dentro de `CardArt.tsx` — nunca embutida na imagem | `imageUrl` é só a ilustração crua; moldura, glow, medalhão de raridade+tipo e faixa do nome são todos desenhados no componente. Decisão revertida de uma primeira tentativa onde a API servia o card já composto (frame + texto cozidos no PNG pelo `DotCardGenerator`) — isso duplicava moldura (uma vinda da imagem, outra do componente) e fazia o desgaste visual (§5) borrar o nome/moldura embutidos em vez de só a ilustração. |
+| Moldura da carta | 100% CSS, dentro de `CardArt.tsx` — nunca embutida na imagem | `imageUrl` é só a ilustração crua; case, glow e o rótulo (raridade, serial+grade, nome, tipo) são todos desenhados no componente (ver §5). Decisão revertida de uma primeira tentativa onde a API servia o card já composto (frame + texto cozidos no PNG pelo `DotCardGenerator`) — isso duplicava moldura (uma vinda da imagem, outra do componente) e fazia o desgaste visual (§5) borrar o nome/moldura embutidos em vez de só a ilustração. |
 | Estilização | Tailwind CSS | Integra nativamente com shadcn/ui (que já é Radix + Tailwind por baixo). |
 | Componentes | Headless (Radix UI / shadcn) | Controle total da aparência em vez de brigar com o tema padrão de uma lib pré-estilizada. |
 | Organização de pastas | Por feature (`features/catalog/`, `features/trades/`, ...) | Sete domínios com lógica própria — evita acoplamento cruzado conforme o app cresce. Só o genuinamente compartilhado vive em `shared/`. |
@@ -75,11 +75,30 @@ isoladamente da UI.
 ## 4. Telas e fluxos
 
 ### Login
-Email/senha. Trata `401` (credencial inválida) e `403` (conta bloqueada/inativa) do AuthForge.
+Email/senha. Trata `401` (credencial inválida), `403` (conta bloqueada/inativa) e `429`
+(throttle do AuthForge) — cada um com mensagem própria via toast, depois de um bug real onde
+os três caíam na mesma mensagem genérica porque o front nunca tinha acesso ao status HTTP
+verdadeiro do erro (corrigido anexando `response.status` explicitamente no retorno de `login()`).
+
+Link "Esqueci minha senha" leva pra `/forgot-password` — formulário de e-mail, sempre mostra a
+mesma mensagem neutra de sucesso, porque `POST /auth/forgot-password` sempre responde 200
+independente da conta existir (anti-enumeração, decisão do AuthForge). O e-mail chega via
+MailForge com um link pra `/reset-password?token=` → formulário de senha nova + confirmação,
+valida força/coincidência no cliente antes de mandar pro servidor. Erros são mapeados pelo
+`errorCode` que o AuthForge devolve no corpo (ex. `INVALID_RESET_TOKEN`), não pelo status HTTP
+— o helper `unwrap()` usado nas outras chamadas não anexa `.status` ao erro lançado, só
+`AuthContext.login()` faz essa anexação manual.
 
 ### Home
-Saldo, `friendCode`, botão de resgate diário habilitado conforme `dailyRewardAvailable`
-(`GET /me`), atalho pra abrir pacote.
+Saldo, `friendCode`, botão de resgate diário habilitado conforme `dailyRewardAvailable`. Dois
+botões de ação com ícone — "Abrir Pacote" (ouro, a única ação primária da tela) e "Trocas"
+(contorno) — substituem o que antes eram links de navegação; abrir pacote e propor troca são
+coisas que o jogador *faz*, não lugares que ele *navega*, então saíram da navbar (ver
+"Navegação em sidebar", abaixo). Logo abaixo, duas vitrines reaproveitando o mesmo componente
+(`CardShowcase`): "Melhores cartas" (5 de melhor grade) e "Cartas mais raras" (5 de maior
+raridade, empate resolvido por grade). Perfil, saldo, `dailyRewardAvailable` e as duas listas
+já ranqueadas e limitadas vêm de uma única chamada, `GET /me/summary` — o ranking passou a ser
+feito no banco, não mais no cliente (mesmo motivo do redesenho do Catálogo, ver abaixo).
 
 ### Abrir pacote (pull reveal)
 Baralho empilhado virado pra baixo. Toque em "abrir" dispara animação de abertura que já revela
@@ -89,14 +108,32 @@ diferenciado no momento da própria revelação dela — não é genérico pra r
 do evento daquele pull.
 
 ### Catálogo (unifica o antigo "Acervo")
-`GET /cards` cruzado com `GET /me/cards` num único grid — não existe mais uma tela separada de
-acervo. Cartas ainda não possuídas aparecem como silhueta bloqueada em vez de simplesmente
-sumir da lista; possuídas com mais de uma cópia ganham um badge de contador (`×N`) sobre o
-`CardArt`. Clicar em qualquer card (possuído ou não) abre um popup (`CardDetailModal`) com o
-`CardArt` grande e, se possuído, a lista dos exemplares individuais — cada um com seu próprio
-`float_value` (ver desgaste visual, abaixo). Essa lista de exemplares é um componente separado
-(`ExemplarList`) justamente para ser reaproveitada como a view de escolher um exemplar
-específico ao propor uma troca.
+
+**Redesenhado depois de um bug real de produção**, não só por preferência de arquitetura. A
+versão original cruzava `GET /cards` com `GET /me/cards?limit=100` num grid único —
+funcionava até um jogador acumular mais de 100 `generated_cards`: o `limit=100` truncava a
+lista de posse em silêncio, sem nenhum sinal de erro, e uma carta com várias cópias podia
+aparecer com a contagem errada (achado com um caso real: uma carta específica mostrando `×1`
+na tela contra `×3` no banco). Não dava pra corrigir só aumentando o limite — quebraria de novo
+assim que a coleção do jogador crescesse mais.
+
+**Arquitetura atual:** cartas carregam por coleção, não a coleção inteira do jogo de uma vez.
+`GET /me/inventory?collectionId=` devolve uma coleção inteira sem limite, com a posse do
+jogador (contagem + melhor exemplar) já embutida por carta — calculada no banco via
+`DISTINCT ON` + `COUNT(*) OVER (PARTITION BY ...)`, nunca agregada no cliente. A primeira
+coleção carrega ao abrir a tela; a próxima só quando o scroll chega ao fim da atual (sentinel +
+`IntersectionObserver`) — nunca "me dá tudo de uma vez". Dentro de cada coleção, cartas
+possuídas ficam num grid, com um badge de contador (`×N`) quando há mais de uma cópia; as
+trancadas saem dali e formam uma seção própria abaixo, "Cartas faltando" — nunca misturadas na
+mesma grade.
+
+Clicar em qualquer card (possuído ou não) abre um popup (`CardDetailModal`) com o `CardArt`
+grande e, se possuído, a lista dos exemplares individuais — cada um com seu próprio
+`float_value` (ver desgaste visual, abaixo). Essa lista **não** vem pré-carregada: é buscada sob
+demanda (`GET /me/inventory/:cardId/exemplars`, só `id`+`float`, sem o `card` aninhado
+redundante) só quando o popup abre — evita repetir o mesmo erro de "carregar tudo adiantado" num
+nível mais fino. É um componente separado (`ExemplarList`) justamente para ser reaproveitado
+como a view de escolher um exemplar específico ao propor uma troca.
 
 ### Amigos
 Lista de amigos + convites pendentes (entrada/saída), convidar por `friendCode`, rotacionar o
@@ -121,11 +158,36 @@ que inviabilizava o layout "versus" de verdade. O DTO passou a embutir o `Genera
 completo de cada lado (`offeredCard`/`requestedCard`) — participante de uma troca tem
 legitimidade pra ver a carta do outro, é exatamente o dado que a troca já expõe.
 
+### Internacionalização (PT/EN)
+`react-i18next`, todo texto de interface em `src/i18n/locales/{pt,en}.json`. Sem detecção
+automática de navegador (`navigator.language`) — a troca é só pela interface (seletor com
+bandeiras 🇧🇷/🇺🇸 na sidebar), persistida em `localStorage`. Não é só preferência de UX: detecção
+automática tornaria o idioma padrão não-determinístico em ambiente de teste (jsdom reporta
+`en-US`), quebrando a suíte de testes existente — `pt` é sempre o idioma inicial/fallback,
+`en` é sempre escolha explícita do usuário.
+
+### Navegação em sidebar
+Migrou de uma barra horizontal no topo pra uma sidebar fixa à esquerda (`sm:` e acima; colapsa
+pra barra horizontal no mobile, mesmo conjunto de nós DOM, sem estado de drawer JS — evita
+duplicar elementos interativos, o que quebraria testes em jsdom que dependem de nome único por
+elemento). Reduzida às três telas de navegação de verdade — Home, Catálogo, Amigos; "Abrir
+Pacote" e "Trocas" saíram (ver "Home", acima) porque uma barra de navegação lista lugares, não
+ações que o jogador executa.
+
+### Toasts
+`sonner`, com um módulo próprio (`components/ui/sonner.tsx`) temado pelos mesmos tokens visuais
+do resto do app. Escopo deliberadamente estreito: status de sistema/rede que o app precisa
+confessar (login com erro, request que não chegou no servidor) — nunca um evento de jogo (carta
+lendária, coleção completa continuam sem toast, tratados na própria tela). Motivado por um bug
+real: o `Login` engolia o status HTTP verdadeiro do erro do AuthForge — `429` (throttle), `403`
+(conta bloqueada) e `401` (senha errada) caíam todos na mesma mensagem genérica, porque o front
+nunca tinha acesso ao status de verdade. Corrigido junto com a criação do módulo.
+
 ---
 
 ## 5. `CardArt` — moldura e desgaste visual
 
-### Moldura (por que é só CSS)
+### Moldura — "the grading slab" (por que é só CSS)
 
 A API serve só a ilustração crua em `imageUrl` — nenhum frame, nome, ícone ou glow embutido
 no pixel. Isso foi uma correção de rota: a primeira versão pedia pro `DotCardGenerator` compor
@@ -134,20 +196,19 @@ por cima, redundante — além de fazer o desgaste visual (abaixo) borrar o nome
 embutidos na imagem, em vez de só a ilustração. Corrigido: toda a composição visual do card
 vive só em `CardArt.tsx`.
 
-Camadas do componente, de baixo pra cima:
+**Redesenhada** de "moldura holo-foil + medalhão de raridade/tipo" pra "case + rótulo
+certificado" — mesma tese de fundo (a posse é o objeto precioso, não só a arte por baixo),
+execução nova. Craft visual completo (paleta, tipografia, regras nomeadas) fica só no
+`DESIGN.md` pra não duplicar fonte de verdade; resumo arquitetural do que mudou:
 
-1. **Arte** (`object-cover`, sangra até a borda do card).
-2. **Desgaste** (se for um exemplar possuído — ver seção abaixo).
-3. **Borda holo-foil** — um wrapper com `padding` pequeno cujo `background` é um gradiente
-   multi-stop (cor da raridade + branco + `accent-soft`) fazendo às vezes de borda, sem
-   `border-image`. Por cima da arte, uma textura de brilho diagonal
-   (`repeating-linear-gradient` + `mix-blend-mode: overlay`) reforça a leitura de "superfície
-   metálica/holográfica".
-4. **Medalhão único**, canto superior esquerdo — combina raridade (fundo em gradiente radial
-   na cor `RARITY_ACCENT`) e tipo (ícone SVG por dentro, `shared/typeIcons.tsx`, mesmos 4
-   desenhos — árvore/chama/runa/caveira — que existiam antes em `card_composer.py`, agora só
-   portados pra JSX). Um selo só, não dois separados.
-5. **Faixa do nome** — recortada com `clip-path`, na base da arte, mesma cor da raridade.
+- **Case**: borda acrílica incolor (gradiente, não `border-image`, 3px de padding) — a cor da
+  raridade não fica mais na moldura inteira, só na faixa do rótulo.
+- **Rótulo**, no topo (escondido em modo `compact`, pra thumbnails pequenas — grid de escolha
+  de carta numa troca, por exemplo): faixa holo de 4px na cor da raridade → linha serial+grade
+  em mono (`NO. 000042` / `GR 8.3`, só quando o exemplar tem `wear`, isto é, é possuído) →
+  nome da carta (serif) → tag raridade·tipo (mono, truncada pra nunca quebrar linha).
+- **Trancada**: case vazio, contorno tracejado, ícone de cadeado, sem gradiente/glow —
+  deliberadamente inerte, nunca compete visualmente com uma carta certificada.
 
 ### Desgaste visual por float
 
@@ -179,9 +240,9 @@ client-side, nenhuma imagem nova é gerada:
 mesmo exemplar sempre desenha o mesmo padrão entre renders, nunca um novo a cada vez que o
 componente monta.
 
-Implementado em `shared/cardWear.ts` (`getWearStyle(floatValue, seed)`), consumido por
-`collection`, `pull-reveal` e `trades` — as três features que renderizam `generated_cards`
-reais.
+Implementado em `shared/cardWear.ts` (`getWearStyle(floatValue, seed)`), chamado só de dentro do
+próprio `CardArt.tsx` — qualquer feature que passa a prop `wear` (Catálogo, pull-reveal, trades)
+ganha o tratamento automaticamente, sem repetir a lógica em cada tela.
 
 ---
 
