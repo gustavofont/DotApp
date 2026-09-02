@@ -122,11 +122,40 @@
     "password": "Password",
     "submit": "Log in",
     "submitting": "Logging in…",
+    "forgotPasswordLink": "Forgot my password",
     "errors": {
       "throttled": "Too many login attempts. Wait about 1 minute and try again.",
       "forbidden": "Account locked or inactive.",
       "invalidCredentials": "Invalid email or password.",
       "generic": "Couldn't log in right now. Please try again shortly."
+    }
+  },
+  "forgotPassword": {
+    "title": "Forgot my password",
+    "email": "Email",
+    "submit": "Send reset link",
+    "submitting": "Sending…",
+    "success": "If that email exists in our records, we've sent a password reset link.",
+    "backToLogin": "Back to login",
+    "errors": {
+      "generic": "Couldn't send it right now. Please try again shortly."
+    }
+  },
+  "resetPassword": {
+    "title": "Set a new password",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "passwordHint": "At least 8 characters, with an uppercase letter, a lowercase letter and a number.",
+    "submit": "Reset password",
+    "submitting": "Resetting…",
+    "success": "Password reset. Log in with your new password.",
+    "missingToken": "Invalid link — request a new one.",
+    "requestNewLink": "Request a new link",
+    "errors": {
+      "mismatch": "Passwords don't match.",
+      "weak": "The password needs at least 8 characters, with an uppercase letter, a lowercase letter and a number.",
+      "invalidToken": "Invalid or expired link. Request a new one.",
+      "generic": "Couldn't reset the password right now. Please try again shortly."
     }
   },
   "protectedRoute": {

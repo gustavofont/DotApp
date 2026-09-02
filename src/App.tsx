@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthContext";
 import { Login } from "./auth/Login";
+import { ForgotPassword } from "./auth/ForgotPassword";
+import { ResetPassword } from "./auth/ResetPassword";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
 import { Layout } from "./shared/components/Layout";
 import { Home } from "./features/home/Home";
@@ -15,6 +17,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />

@@ -122,11 +122,40 @@
     "password": "Senha",
     "submit": "Entrar",
     "submitting": "Entrando…",
+    "forgotPasswordLink": "Esqueci minha senha",
     "errors": {
       "throttled": "Muitas tentativas de login. Aguarde cerca de 1 minuto e tente de novo.",
       "forbidden": "Conta bloqueada ou inativa.",
       "invalidCredentials": "Email ou senha inválidos.",
       "generic": "Não foi possível entrar agora. Tente novamente em instantes."
+    }
+  },
+  "forgotPassword": {
+    "title": "Esqueci minha senha",
+    "email": "Email",
+    "submit": "Enviar link de redefinição",
+    "submitting": "Enviando…",
+    "success": "Se esse e-mail existir na nossa base, enviamos um link de redefinição de senha.",
+    "backToLogin": "Voltar para o login",
+    "errors": {
+      "generic": "Não foi possível enviar agora. Tente novamente em instantes."
+    }
+  },
+  "resetPassword": {
+    "title": "Definir nova senha",
+    "newPassword": "Nova senha",
+    "confirmPassword": "Confirmar nova senha",
+    "passwordHint": "Mínimo de 8 caracteres, com maiúscula, minúscula e número.",
+    "submit": "Redefinir senha",
+    "submitting": "Redefinindo…",
+    "success": "Senha redefinida com sucesso. Faça login com a nova senha.",
+    "missingToken": "Link inválido — peça um novo.",
+    "requestNewLink": "Pedir novo link",
+    "errors": {
+      "mismatch": "As senhas não coincidem.",
+      "weak": "A senha precisa ter ao menos 8 caracteres, com maiúscula, minúscula e número.",
+      "invalidToken": "Link inválido ou expirado. Peça um novo.",
+      "generic": "Não foi possível redefinir a senha agora. Tente novamente em instantes."
     }
   },
   "protectedRoute": {

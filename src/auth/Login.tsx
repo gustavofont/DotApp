@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import { toast } from "sonner";
@@ -79,8 +79,14 @@ export function Login() {
           autoComplete="current-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="mb-4 w-full rounded-lg border border-hairline bg-surface-2 px-3 py-2 text-ink outline-none focus-visible:border-legendary"
+          className="mb-2 w-full rounded-lg border border-hairline bg-surface-2 px-3 py-2 text-ink outline-none focus-visible:border-legendary"
         />
+        <Link
+          to="/forgot-password"
+          className="mb-4 block text-right text-xs text-ink-faint hover:text-ink"
+        >
+          {t("login.forgotPasswordLink")}
+        </Link>
 
         <button
           type="submit"
