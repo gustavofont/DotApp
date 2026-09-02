@@ -1,6 +1,8 @@
 import { Link, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { CircleUserRound, LogOut } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
+import { getCurrentUserName } from "../../auth/tokenStore";
 import { Button } from "../../components/ui/button";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { cn } from "@/lib/utils";
@@ -18,6 +20,7 @@ const LINKS = [
 export function Nav() {
   const { t } = useTranslation();
   const { logout } = useAuth();
+  const userName = getCurrentUserName();
 
   return (
     <aside className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-hairline px-4 py-3 sm:sticky sm:top-0 sm:h-svh sm:w-56 sm:shrink-0 sm:flex-col sm:items-stretch sm:gap-0 sm:border-r sm:border-b-0 sm:px-0 sm:py-0">
@@ -50,13 +53,22 @@ export function Nav() {
 
       <div className="flex shrink-0 items-center gap-2 sm:w-full sm:flex-col sm:items-stretch sm:gap-3 sm:border-t sm:border-hairline sm:p-3">
         <LanguageSwitcher />
+
+        {userName ? (
+          <div className="flex items-center gap-2 sm:w-full sm:rounded-sm sm:px-1 sm:py-1.5">
+            <CircleUserRound className="size-7 shrink-0 rounded-full text-ink-dim" strokeWidth={1.5} />
+            <span className="truncate text-sm font-medium text-ink sm:min-w-0">{userName}</span>
+          </div>
+        ) : null}
+
         <Button
           type="button"
           variant="ghost"
           size="sm"
-          className="sm:w-full sm:justify-start"
+          className="gap-2 sm:w-full sm:justify-start"
           onClick={() => void logout()}
         >
+          <LogOut className="size-4" strokeWidth={1.75} />
           {t("nav.logout")}
         </Button>
       </div>

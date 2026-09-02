@@ -14,24 +14,32 @@ export function setAccessToken(token: string | null): void {
   accessToken = token;
 }
 
-/**
- * Decodes `sub` straight out of the in-memory access token instead of
- * round-tripping through the backend — the JWT already carries it, and
- * reading your own token's payload client-side needs no extra endpoint.
- */
-export function getCurrentUserId(): string | null {
+function decodeTokenClaim(claim: string): string | null {
   if (!accessToken) return null;
   try {
     const payload = accessToken.split(".")[1];
     const decoded: unknown = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
-    if (decoded && typeof decoded === "object" && "sub" in decoded) {
-      const sub = (decoded as { sub: unknown }).sub;
-      return typeof sub === "string" ? sub : null;
+    if (decoded && typeof decoded === "object" && claim in decoded) {
+      const value = (decoded as Record<string, unknown>)[claim];
+      return typeof value === "string" ? value : null;
     }
     return null;
   } catch {
     return null;
   }
+}
+
+/**
+ * Decodes `sub`/`name` straight out of the in-memory access token instead of
+ * round-tripping through the backend — the JWT already carries them, and
+ * reading your own token's payload client-side needs no extra endpoint.
+ */
+export function getCurrentUserId(): string | null {
+  return decodeTokenClaim("sub");
+}
+
+export function getCurrentUserName(): string | null {
+  return decodeTokenClaim("name");
 }
 
 const REFRESH_TOKEN_KEY = "dotapp.refreshToken";
