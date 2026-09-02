@@ -68,35 +68,43 @@ export function CardDetailModal({ card, onOpenChange }: CardDetailModalProps) {
     <Dialog open={card !== null} onOpenChange={onOpenChange}>
       {card ? (
         <DialogContent className="max-w-xs">
-          <DialogTitle className="font-serif text-lg">{card.name}</DialogTitle>
-          <DialogDescription>
-            {t(`common.cardType.${card.type}`)} · {t(`common.rarity.${card.rarity}`)}
-          </DialogDescription>
+          <div className="flex shrink-0 flex-col gap-3">
+            <div>
+              <DialogTitle className="font-serif text-lg">{card.name}</DialogTitle>
+              <DialogDescription>
+                {t(`common.cardType.${card.type}`)} · {t(`common.rarity.${card.rarity}`)}
+              </DialogDescription>
+            </div>
 
-          <div className="mx-auto w-40">
-            <CardArt
-              name={card.name}
-              imageUrl={card.imageUrl}
-              rarity={card.rarity}
-              cardType={card.type}
-              locked={!owned}
-              wear={
-                card.ownership
-                  ? { floatValue: card.ownership.bestFloatValue, seed: Number(card.ownership.bestGeneratedCardId) }
-                  : undefined
-              }
-            />
+            <div className="mx-auto w-40">
+              <CardArt
+                name={card.name}
+                imageUrl={card.imageUrl}
+                rarity={card.rarity}
+                cardType={card.type}
+                locked={!owned}
+                wear={
+                  card.ownership
+                    ? { floatValue: card.ownership.bestFloatValue, seed: Number(card.ownership.bestGeneratedCardId) }
+                    : undefined
+                }
+              />
+            </div>
           </div>
 
-          {owned ? (
-            exemplarsQuery.data ? (
-              <ExemplarList exemplars={exemplarsQuery.data} rarity={card.rarity} />
+          {/* Only this part scrolls — title/description/art stay pinned so a
+              card with dozens of copies doesn't scroll its own art away. */}
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            {owned ? (
+              exemplarsQuery.data ? (
+                <ExemplarList exemplars={exemplarsQuery.data} rarity={card.rarity} />
+              ) : (
+                <p className="text-center text-sm text-ink-dim">{t("common.loading")}</p>
+              )
             ) : (
-              <p className="text-center text-sm text-ink-dim">{t("common.loading")}</p>
-            )
-          ) : (
-            <p className="text-center text-sm text-ink-faint">{t("cardDetail.notObtained")}</p>
-          )}
+              <p className="text-center text-sm text-ink-faint">{t("cardDetail.notObtained")}</p>
+            )}
+          </div>
         </DialogContent>
       ) : null}
     </Dialog>
