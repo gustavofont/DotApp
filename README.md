@@ -37,11 +37,14 @@ npm run gen:auth   # AuthForge   -> src/api/authforge.types.ts
 
 ## Docker
 
-Not part of DotCard-API's default `docker compose up` — this app is still under active local
-development via `npm run dev`. To preview the production build in the same network as the
-backend (assumes both repos are cloned as sibling directories):
+This repo is also a git submodule of DotCard-API, at `services/dotapp` — part of that repo's
+default `docker compose up` (`npm run up`), which brings up the whole system, backend and
+frontend, with one command. `docker/Dockerfile` is a multi-stage build (Node → static `dist/` →
+`nginx-unprivileged`, serving on port 8080); the root compose maps that to `http://localhost:5173`.
 
-```bash
-cd ../DotCard-API
-docker compose --profile dotapp up --build dotapp   # http://localhost:5173
-```
+Day-to-day frontend work still happens via `npm run dev` above, against a backend running however
+you prefer (see [DotCard-API's README](https://github.com/gustavofont/DotCard-API#readme)) — the
+Docker image is only the production-shaped build DotCard-API's compose brings up as `dotapp`.
+
+If you're editing files under DotCard-API's `services/dotapp/`, remember the submodule discipline:
+commit and push here first, then bump the pointer in DotCard-API's own commit.
